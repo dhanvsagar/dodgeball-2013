@@ -1,4 +1,3 @@
-require 'pry'
 require 'rake/clean'
 require_relative 'rakelib/ascii_to_video_utils'
 require_relative 'rakelib/dodgeball_runner'
@@ -98,10 +97,7 @@ AGENTS.each do |agent|
   file "#{agent}/mp_script.lisp" => "#{agent}/#{agent}_mp.lisp" do
     script_file = "#{agent}/mp_script.lisp"
     
-    File.open script_file, 'w+' do |f|
-      f.puts single_player_script(agent)
-    end
-
+    IO.write(script_file, single_player_script(agent))
     File.chmod 0755, script_file
   end
 
@@ -115,7 +111,7 @@ AGENTS.each do |agent|
 
   desc "single player with multi player agent #{agent}"
   task "#{agent}_mp" => "#{agent}/mp_script.lisp" do
-    Dodgeball::DodgeballRunner.new("#{agent}/sp_script.lisp", "#{agent}/output").run
+    Dodgeball::DodgeballRunner.new("#{agent}/mp_script.lisp", "#{agent}/output").run
   end
 
   desc "generate animation for single player with agent #{agent}"
