@@ -110,12 +110,12 @@ AGENTS.each do |agent|
 
   desc "single player with agent #{agent}"
   task "#{agent}_sp" => "#{agent}/sp_script.lisp" do
-    run_sp_script "./#{agent}/sp_script.lisp" 
+    Dodgeball::DodgeballRunner.new("#{agent}/sp_script.lisp", "#{agent}/output").run
   end
 
   desc "single player with multi player agent #{agent}"
   task "#{agent}_mp" => "#{agent}/mp_script.lisp" do
-    run_sp_script "./#{agent}/mp_script.lisp" 
+    Dodgeball::DodgeballRunner.new("#{agent}/sp_script.lisp", "#{agent}/output").run
   end
 
   desc "generate animation for single player with agent #{agent}"

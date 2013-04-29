@@ -1,3 +1,5 @@
+require 'open3'
+
 module Dodgeball
   class DodgeballRunner
 
@@ -20,8 +22,13 @@ module Dodgeball
       board = ""
       counter = 1
 
-      output = `alisp '-#D' #{@script_path} 2>&1`
-      puts output
+      output = ""
+      Open3.popen3("alisp '-#D' #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
+        while line = stdout.gets
+          puts line
+          output << line
+        end
+      end
 
       output.each_line do |line|
         if line.match(/^[ ]*([0-9]| )+$/)

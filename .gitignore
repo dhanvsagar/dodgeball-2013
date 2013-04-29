@@ -3,3 +3,9 @@ submissions.sublime-project
 submissions.sublime-workspace
 **/.lisp
 **/*.fasl
+output
+images
+**/output
+**/images
+result.mp4
+**/*.mp4
