@@ -312,7 +312,7 @@
     (if (and (= 1 (agents-alive (db-world-agents world) world)) (find-student (get-percept-grid world))) t nil)))
 
 (defun test-agent-mode-2 (agent-list)
-  (let* ((world (make-db-world :game-mode competetive-mode :max-steps (* 10000 (list-length agent-list)))))
+  (let* ((world (make-db-world :game-mode competetive-mode :max-steps (* 30 (list-length agent-list)))))
     (dolist (agent agent-list)
       (add-agent world agent))
     (initialize world)
