@@ -25,6 +25,7 @@ CLEAN.include("*/output")
 CLEAN.include("*/*.gif")
 CLEAN.include("result.mp4")
 CLEAN.include("*/*.mp4")
+CLEAN.include("**/*.fasl")
 CLEAN.include(MP_SCRIPT)
 SP_READY_AGENTS = [:cackolen,
                    :chmelond,

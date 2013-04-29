@@ -151,9 +151,9 @@
       (return-from alternative-identify-in-list item))) nil)
 
 (defun find-my-location (grid my-name)
-  (alternative-find-X-location #'me-p grid my-name))
+  (alternative-find-X-location #'palkoigo-me-p grid my-name))
 
-(defmethod me-p ((obj percept-object) (my-name string))
+(defmethod palkoigo-me-p ((obj percept-object) (my-name string))
   (if (equal (percept-object-name obj) my-name) obj nil))
 
 (defun palkoigo-program (percept)
