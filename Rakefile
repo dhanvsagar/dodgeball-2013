@@ -13,6 +13,7 @@ AGENTS = FileList["*"].exclude(/ENVIRONMENT.*/)
                       .exclude(/tags/)
                       .exclude(/images/)
                       .exclude(/result\.mp4/)
+                      .exclude(/README\.md/)
 SP_SCRIPTS = AGENTS.collect { |a| "#{a}/sp_script.lisp" }
 MP_AGENTS = AGENTS.collect { |a| "#{a}/#{a}_mp.lisp" }
 CLEAN.include("*/sp_script.lisp")
@@ -25,10 +26,12 @@ CLEAN.include("*/*.gif")
 CLEAN.include("result.mp4")
 CLEAN.include("*/*.mp4")
 CLEAN.include("**/*.fasl")
+CLEAN.include("**/*.fas")
 CLEAN.include(MP_SCRIPT)
 SP_READY_AGENTS = [:cackolen,
                    :chmelond,
                    :cincuada,
+                   :cadekva1,
                    #:fifiksta,
                    :fiserale,
                    :hanafran,
@@ -40,6 +43,7 @@ SP_READY_AGENTS = [:cackolen,
                    #:kotrbluk,
                    #:ludacrad,
                    :macalkar,
+                   :milikjan,
                    #:musilon4,
                    :nohavja1,
                    #:palkoigo,
@@ -52,7 +56,8 @@ SP_READY_AGENTS = [:cackolen,
                    :strnaj11,
                    :temnymar,
                    :valespe3,
-                   :vanikjak
+                   :vanikjak,
+                   :wancavil
 ]
 MP_READY_AGENTS = [:cackolen,
                    :chmelond,
@@ -68,6 +73,7 @@ MP_READY_AGENTS = [:cackolen,
                    #:kotrbluk,
                    #:ludacrad,
                    #:macalkar,
+                   #:milikjan,
                    #:musilon4,
                    #:nohavja1,
                    #:palkoigo,
@@ -77,10 +83,11 @@ MP_READY_AGENTS = [:cackolen,
                    #:staryvac,
                    #:steklmar,
                    #:stiplsta,
-                   #:strnaj11,
+                   :strnaj11,
                    :temnymar,
                    #:valespe3,
-                   :vanikjak
+                   :vanikjak,
+                   :wancavil
 ]
 
 AGENTS.each do |agent|
@@ -129,7 +136,7 @@ file MP_SCRIPT => MP_AGENTS do
     File.chmod 0755, MP_SCRIPT
 end
 
-task :default => [:single_player, :multiplayer]
+task :default => [:single_player, :multi_player]
 
 desc "single player for each sp ready agent"
 task :single_player => SP_SCRIPTS do

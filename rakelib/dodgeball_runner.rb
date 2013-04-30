@@ -23,7 +23,8 @@ module Dodgeball
       counter = 1
 
       output = ""
-      Open3.popen3("alisp '-#D' #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
+      Open3.popen3("clisp #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
+      #Open3.popen3("alisp '-#D' #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
         while line = stdout.gets
           puts line
           output << line

@@ -3,6 +3,7 @@ submissions.sublime-project
 submissions.sublime-workspace
 **/.lisp
 **/*.fasl
+**/*.fas
 output
 images
 **/output
