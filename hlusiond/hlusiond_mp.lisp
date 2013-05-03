@@ -6,24 +6,24 @@
 
 ;;; Mode 1 Agent
 ;;;;;;;;;;;;;;;;
-(defstructure (hlusiond (:include db-agent
+(defstructure (hlusiond-1 (:include db-agent
                                              (program 'ho-db-agent-1)
-                                             (body (make-hlusiond-body))
+                                             (body (make-hlusiond-body-1))
                                              (name hlusiond-name)))
               "hlusiond mode 1 agent.")
 
-(defstructure (hlusiond-body (:include db-agent-body 
+(defstructure (hlusiond-body-1 (:include db-agent-body 
                                                   (name hlusiond-name))))
 
 ;;; Mode 2 Agent
 ;;;;;;;;;;;;;;;;
-(defstructure (hlusiond-db-agent-2 (:include db-agent
+(defstructure (hlusiond (:include db-agent
                                              (program 'ho-db-agent-2)
-                                             (body (make-hlusiond-bd-agent-2-body))
+                                             (body (make-hlusiond-body))
                                              (name hlusiond-name)))
               "hlusiond mode 2 agent.")
 
-(defstructure (hlusiond-bd-agent-2-body (:include db-agent-body 
+(defstructure (hlusiond-body (:include db-agent-body 
                                                   (name hlusiond-name))))
 
 
