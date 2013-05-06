@@ -107,7 +107,7 @@ AGENTS.each do |agent|
   file "#{agent}/mp_script.lisp" => "#{agent}/#{agent}_mp.lisp" do
     script_file = "#{agent}/mp_script.lisp"
     
-    IO.write(script_file, single_player_script(agent))
+    IO.write(script_file, multi_player_test_script(agent))
     File.chmod 0755, script_file
   end
 
@@ -183,6 +183,11 @@ def multi_player_script
   script
     .gsub("<AGENT_PATHS>", MP_READY_AGENTS.collect {|a| "(print \"Loading #{a}\")\n(load \"#{a}/#{a}_mp.lisp\")\n(print \"#{a} sucessfully loaded\")" }.join("\n"))
     .gsub("<AGENT_NAMES>", MP_READY_AGENTS.collect {|a| "'#{a}" }.join(" "))
+end
+
+def multi_player_test_script(agent)
+  script = IO.read(SP_SCRIPT_TEMPLATE)
+  script.gsub("<AGENT_PATH>", "#{Dir.pwd}/#{agent}/#{agent}_mp.lisp").gsub("<AGENT_NAME>", agent)
 end
 
 def single_player_script(agent) 
