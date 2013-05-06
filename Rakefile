@@ -80,7 +80,7 @@ MP_READY_AGENTS = [:cackolen,
                    #:musilon4,
                    #:nohavja1,
                    #:palkoigo,
-                   #:perutond,
+                   :perutond,
                    #:sembejir,
                    :silhaja6,
                    :staryvac,
@@ -90,7 +90,7 @@ MP_READY_AGENTS = [:cackolen,
                    :temnymar,
                    #:valespe3,
                    :vanikjak,
-                   :wancavil
+                   #:wancavil
 ]
 
 AGENTS.each do |agent|
