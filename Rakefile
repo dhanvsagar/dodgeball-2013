@@ -1,6 +1,7 @@
 require 'rake/clean'
 require_relative 'rakelib/ascii_to_video_utils'
 require_relative 'rakelib/dodgeball_runner'
+require 'stringio'
 
 SP_SCRIPT_TEMPLATE = "ENVIRONMENT/aimaload.lisp"
 MP_SCRIPT_TEMPLATE = "ENVIRONMENT/aimaload_mp.lisp"
@@ -41,6 +42,7 @@ SP_READY_AGENTS = [:cackolen,
                    #:kersnmar,
                    :kokorigo,
                    :kotrbluk,
+                   :kroupvla,#late
                    :ludacrad,
                    :macalkar,
                    :milikjan,
@@ -66,11 +68,12 @@ MP_READY_AGENTS = [:cackolen,
                    #:fiserale,
                    #:hanafran,
                    :hlusiond,
-                   #:hrubaeli,
+                   :hrubaeli,
                    :kacurtom,
                    #:kersnmar,
                    :kokorigo,
                    #:kotrbluk,
+                   #:kroupvla,#late
                    #:ludacrad,
                    #:macalkar,
                    #:milikjan,
@@ -140,9 +143,19 @@ task :default => [:single_player, :multi_player]
 
 desc "single player for each sp ready agent"
 task :single_player => SP_SCRIPTS do
-  SP_READY_AGENTS.each do |agent|
-    Dodgeball::DodgeballRunner.new("#{agent}/sp_script.lisp", "#{agent}/output").run
-  end
+    SP_READY_AGENTS.each do |agent|
+      puts "#{agent} started"
+      ret_val = true
+      with_captured_output do
+         ret_val = Dodgeball::DodgeballRunner.new("#{agent}/sp_script.lisp", "#{agent}/output").run
+      end
+
+      if ret_val
+        puts "#{agent} OK"
+      else
+        puts "#{agent} failed"
+      end
+    end
 end
 
 desc "single player for sp ready agent, with pause after each run"
@@ -175,4 +188,26 @@ end
 def single_player_script(agent) 
   script = IO.read(SP_SCRIPT_TEMPLATE)
   script.gsub("<AGENT_PATH>", "#{Dir.pwd}/#{agent}/#{agent}_sp.lisp").gsub("<AGENT_NAME>", agent)
+end
+
+def with_captured_output
+  old_stdout = STDOUT.clone
+  pipe_r, pipe_w = IO.pipe
+  pipe_r.sync = true
+  output = ""
+  reader = Thread.new do
+    begin
+      loop do
+        output << pipe_r.readpartial(1024)
+      end
+    rescue EOFError
+    end
+  end
+  STDOUT.reopen(pipe_w)
+  yield
+ensure 
+  STDOUT.reopen(old_stdout)
+  pipe_w.close
+  reader.join
+  return output
 end

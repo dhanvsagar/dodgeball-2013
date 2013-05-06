@@ -19,4 +19,5 @@
 
 (load "<AGENT_PATH>")
 
+(setf *random-state* (make-random-state t))
 (test-agent-mode-1 '<AGENT_NAME>)

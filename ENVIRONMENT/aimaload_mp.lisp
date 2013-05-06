@@ -21,4 +21,5 @@
 (load (concatenate 'string prefix "search/algorithms/repeated.lisp"))
 (load (concatenate 'string prefix "search/algorithms/ida.lisp"))
 
+(setf *random-state* (make-random-state t))
 (test-agent-mode-2 (list <AGENT_NAMES>))

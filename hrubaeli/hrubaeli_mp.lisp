@@ -57,7 +57,7 @@
   ) ;konec let
 ) ; konec defun
 
-;(defun move-to-ball (grid ball-loc my-loc)
+;(defun hrubaeli-move-to-ball (grid ball-loc my-loc)
 	;(format t "Move to position ~A, from position ~A" ball-loc my-loc)
 ;	(cond ((> (car ball-loc) (car my-loc)) 'go-right)
 ;		  ((< (car ball-loc) (car my-loc)) 'go-left)
@@ -93,7 +93,7 @@
 (defun hrubaeli-my-throw-ball (enemy my-loc)
 ;(format t "Vzdalenost je: ~A" (points-dist enemy my-loc))
 	(if (= 1 (points-dist enemy my-loc)) `(throw-ball ,@enemy) ;vzdalenost 1, hod to na nepritele
-	    `(throw-ball ,@(hrubaeli-throw-ball-next enemy my-loc)) ;vzdalenost vetsi, hod k nepriteli
+	    `(throw-ball ,@(hrubaeli-throw-ball-next enemy my-loc)) ;vzdalenost vetsi, hod pred nepritele
 	)
 )
 

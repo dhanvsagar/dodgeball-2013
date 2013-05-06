@@ -15,13 +15,13 @@
 (defun cadekva1-program (percept)
     (let* ((me (first percept))
           (grid (second percept))
+          (my-loc (object-loc me))
           (ball-on-my-loc (member-if (lambda (a) (typep a 'percept-object-ball)) (apply #'aref grid (object-loc me))))
           (holding-ball (object-contents me))
-          (agent-loc (find-agent-location grid))
-          (ball-loc (find-ball-or-agent-with-ball grid))
-          (my-loc (object-loc me))
+          (agent-loc (closest-agent my-loc grid))
+          (ball-loc (find-ball-or-agent-with-ball grid))          
           (agent-next-to-me (standing-next-to-agent my-loc agent-loc))
-          (agent-neighbor-loc (determine-closest-location grid my-loc agent-loc))
+          (agent-neighbor-loc (closest-location-around-agent my-loc agent-loc grid))
           (shortest-path (bfs my-loc ball-loc grid))
           (next-step (first shortest-path)))
  
@@ -54,20 +54,37 @@
  
   (+ (abs (- ax bx)) (abs (- ay by)))
 ))
+
+(defun closest-agent(my-loc grid) 
+  "Finds location of the closest agent."
+  (let* ((agents (find-agents grid))
+         (closest (first agents)))
+
+    (dolist
+      (loc (rest agents))
+      (when (< (manhattan-distance my-loc loc) (manhattan-distance my-loc closest)) 
+        (setf closest loc))) closest ))
+
+(defun find-agents (grid)
+  "Finds location of all agents."
+  (let ((agent) (agents))
+    (dotimes (i (first (array-dimensions grid)))
+      (dotimes (j (second (array-dimensions grid)))
+        (when (setf agent (identify-in-list #'agent-predicate (aref grid i j)))
+          (push (list i j) agents)))) agents ))
  
-(defun determine-closest-location (grid my-loc agent-loc)
-  "Determine closer location so agent can't catch the ball." 
+(defun closest-location-around-agent (my-loc agent-loc grid)
+  "Determine closest location so agent can't catch the ball when throwing it behind him." 
 (let* ((neighbors (get-4-neighborhood agent-loc grid))
-       (empty-neighbors (remove-if-not #'(lambda (x) (is-position-free x grid)) neighbors))
-       (closest (first empty-neighbors)))
- 
+       (empty-neighbors (remove-if-not #'(lambda (x) (is-position-free x grid)) neighbors)))
+
+  (setf closest (first empty-neighbors))
   (dolist 
-    (loc empty-neighbors)
-    (when (< (manhattan-distance my-loc loc) (manhattan-distance loc closest)) 
-      (setf closest loc)
+    (loc (rest empty-neighbors))
+    (when (< (manhattan-distance my-loc loc) (manhattan-distance my-loc closest)) 
+     (setf closest loc)
     )
   )
- 
   closest
 ))
  

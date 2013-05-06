@@ -21,14 +21,16 @@ module Dodgeball
       reading_board = false
       board = ""
       counter = 1
+      ret_val = 0
 
       output = ""
-      #Open3.popen3("clisp #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
-      Open3.popen3("alisp '-#D' #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
+      Open3.popen3("clisp #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
+      #Open3.popen3("alisp '-#D' #{@script_path} 2>&1") do |stdin, stdout, stderr, wait_thr|
         while line = stdout.gets
           puts line
           output << line
         end
+        ret_val = wait_thr.value.exitstatus
       end
 
       output.each_line do |line|
@@ -45,6 +47,8 @@ module Dodgeball
           board << line
         end
       end
+puts ret_val
+      ret_val == 0
     end
   end
 end
