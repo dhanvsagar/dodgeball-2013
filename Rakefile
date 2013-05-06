@@ -32,25 +32,25 @@ CLEAN.include(MP_SCRIPT)
 SP_READY_AGENTS = [:cackolen,
                    :chmelond,
                    :cincuada,
-                   :cadekva1,
-                   #:fifiksta,
-                   :fiserale,
+                   :cadekva1,#late
+                   :fifiksta,#clisp only
+                   :fiserale,#sometimes fails
                    :hanafran,
                    :hlusiond,
                    :hrubaeli,
                    :kacurtom,
-                   #:kersnmar,
+                   #:kersnmar,#not working
                    :kokorigo,
                    :kotrbluk,
                    :kroupvla,#late
                    :ludacrad,
                    :macalkar,
                    :milikjan,
-                   #:musilon4,
+                   :musilon4,#clisp only
                    :nohavja1,
-                   #:palkoigo,
+                   :palkoigo,#late
                    :perutond,
-                   #:sembejir,
+                   :sembejir,
                    :silhaja6,
                    :staryvac,
                    :steklmar,
@@ -61,36 +61,38 @@ SP_READY_AGENTS = [:cackolen,
                    :vanikjak,
                    :wancavil
 ]
-MP_READY_AGENTS = [:cackolen,
-                   :chmelond,
-                   #:cincuada,
-                   #:fifiksta,
-                   #:fiserale,
-                   #:hanafran,
+MP_READY_AGENTS = [
+                   #:cackolen,#nil is not of type number
+                   #:cadekva1,#late #polluting
+                   #:chmelond,#polluting
+                   #:cincuada,#polluting
+                   #:fifiksta,#clisp only #non symbol used
+                   #:fiserale,#probably infilooped
+                   #:hanafran,#polluting
                    :hlusiond,
                    :hrubaeli,
-                   :kacurtom,
-                   #:kersnmar,
-                   :kokorigo,
-                   #:kotrbluk,
-                   #:kroupvla,#late
-                   #:ludacrad,
-                   #:macalkar,
-                   #:milikjan,
-                   #:musilon4,
-                   #:nohavja1,
-                   #:palkoigo,
+                   #:kacurtom,#polluting
+                   #:kersnmar,#not working #polluting
+                   #:kokorigo,#polluting
+                   #:kotrbluk,#nil is not of type number
+                   #:kroupvla,#late #polluting
+                   #:ludacrad,#polluting
+                   #:macalkar,#polluting
+                   #:milikjan,#nil is not of type number
+                   #:musilon4,#clisp only #non symbol used
+                   #:nohavja1,#nil is not of type number
+                   :palkoigo,#late
                    :perutond,
-                   #:sembejir,
-                   :silhaja6,
-                   :staryvac,
-                   #:steklmar,
-                   #:stiplsta,
+                   #:sembejir,#attempt to call euclid
+                   #:silhaja6,#polluting
+                   #:staryvac,#trying to take car of T
+                   #:steklmar,#polluting
+                   #:stiplsta,#nil is not of type number
                    :strnaj11,
-                   :temnymar,
-                   #:valespe3,
+                   #:temnymar,#polluting
+                   #:valespe3,#polluting
                    :vanikjak,
-                   #:wancavil
+                   #:wancavil #non symbol used
 ]
 
 AGENTS.each do |agent|

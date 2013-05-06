@@ -1,4 +1,4 @@
-(defconstant milikjan-agent-name "milikjan")
+(defconstant milikjan-agent-name "MKJ")
 
 
 ;; This is to be defined when designing a new student agent 
@@ -8,7 +8,7 @@
                   (body (make-milikjan-agent-body))
                   (program 'milikjan-agent-program)
                   (name milikjan-agent-name)))
-  "Your agent for db-world.")
+  "Milik Jan")
 
 (defstructure (milikjan-agent-body
 			 (:include db-agent-body (name milikjan-agent-name)))
