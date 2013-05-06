@@ -6,7 +6,7 @@
 (defconstant sembejir-agent-name "SB")
 
 ;;;; MAIN BODY
-(defun sembejir-program (percept)
+(defun sembejir-prgm (percept)            
   (let ((agent-body (first percept)))    ; extracts agent body from percept
     (let* (                                                             ; copy-pasted from WT agent
          (me (car percept))
@@ -14,7 +14,7 @@
          (ball-on-my-loc (member-if (lambda (a) (typep a 'percept-object-ball)) (apply #'aref grid (object-loc me))))
          (holding-ball (object-contents me))
          (student-loc (find-student-location grid))
-         (my-loc (find-X-location (percept-object-name-p-factory sembejir-agent-name) grid))
+         (my-loc (find-X-location (sembejir-percept-object-name-p-factory sembejir-agent-name) grid))
          (me-percept (first (apply #'aref grid (object-loc me))))
          )              
          
@@ -24,7 +24,7 @@
          (when (null my-loc)
             (format t "I'm dead! ~%")
             ;(error "dead")
-            (return-from sembejir-program 'stay)          
+            (return-from sembejir-prgm 'stay)          
          )                
          
          (format t "ball-on-my-loc: ~S ~%" ball-on-my-loc)
@@ -51,6 +51,7 @@
 (defstructure (sembejir-agent-body                 
                 (:include db-agent-body
                 (name sembejir-agent-name)
+                (sname sembejir-agent-name)
                 )                
               )
     (tactics #'sembejir-fetch-ball)                             ; tactics
@@ -61,7 +62,7 @@
 (defstructure (sembejir
     (:include db-agent
       (body (make-sembejir-agent-body))
-      (program 'sembejir-program)
+      (program 'sembejir-prgm)
       (name sembejir-agent-name)
     )
   )
@@ -72,13 +73,13 @@
 ;;;; UTILITIES --------------------- 
 
 ; factory for comparing a single string to others
-(defun string-match-p-factory (stringToMatch) 
+(defun sembejir-string-match-p-factory (stringToMatch) 
   (lambda (otherString) (equal stringToMatch otherString)) 
 )
 
 ; factory for comparing percept-object names to a single string
-(defun percept-object-name-p-factory (object-name)
-  (let ((name-matches (string-match-p-factory object-name))) 
+(defun sembejir-percept-object-name-p-factory (object-name)
+  (let ((name-matches (sembejir-string-match-p-factory object-name))) 
     (lambda (object) 
       (if (null object) 
         nil
@@ -90,19 +91,19 @@
 
 ;; MISC
 
-(defun euclidean-distance-helper (list1 list2 result)
+(defun sembejir-sembejir-euclidean-distance-helper (list1 list2 result)
   (if (or (null list1) (null list2))
     result
-    (euclidean-distance-helper (cdr list1) (cdr list2) (+ result (* (- (car list1) (car list2)) (- (car list1) (car list2))) ))
+    (sembejir-sembejir-euclidean-distance-helper (cdr list1) (cdr list2) (+ result (* (- (car list1) (car list2)) (- (car list1) (car list2))) ))
   )   
 )
-(defun euclidean-distance (list1 list2) 
-  (sqrt (euclidean-distance-helper list1 list2 0))
+(defun sembejir-euclidean-distance (list1 list2) 
+  (sqrt (sembejir-sembejir-euclidean-distance-helper list1 list2 0))
 )
 
 ;; PREDICATE FACTORIES
 (defun make-sembejir-p ()
-  (percept-object-name-p-factory sembejir-agent-name)  
+  (sembejir-percept-object-name-p-factory sembejir-agent-name)  
 )
 
 ; does object at given coordinates represent MYSELF?
@@ -172,34 +173,34 @@
         (apply #'aref grid coord)                     ; get objects on coord
       )          
     )
-    (list-all-locations (sembejir-make-enemy-p) grid)          ; coords of all enemies
+    (sembejir-list-all-locations (sembejir-make-enemy-p) grid)          ; coords of all enemies
   ))
 ) 
 
 ; coordinates modification utils
-(defun modify-nth (list n &optional (func #'1+)) 
+(defun sembejir-modify-nth (list n &optional (func #'1+)) 
   (if (= n 0) (cons (funcall func (car list)) (cdr list))
-    (cons (car list) (modify-nth (cdr list) (1- n) func))
+    (cons (car list) (sembejir-modify-nth (cdr list) (1- n) func))
   )
 )
-(defun inc-x (coord) 
-  (modify-nth coord 0)
+(defun sembejir-inc-x (coord) 
+  (sembejir-modify-nth coord 0)
 )
-(defun dec-x (coord) 
-  (modify-nth coord 0 #'1-)
+(defun sembejir-dec-x (coord) 
+  (sembejir-modify-nth coord 0 #'1-)
 )
-(defun inc-y (coord) 
-  (modify-nth coord 1)
+(defun sembejir-inc-y (coord) 
+  (sembejir-modify-nth coord 1)
 )
-(defun dec-y (coord) 
-  (modify-nth coord 1 #'1-)
+(defun sembejir-dec-y (coord) 
+  (sembejir-modify-nth coord 1 #'1-)
 )
 
 ; coordinates combinator
-(defun combine-coordinates (operation list1 list2)
+(defun sembejir-combine-coordinates (operation list1 list2)
   (if (null (car list1))
     nil
-    (cons (funcall operation (car list1) (car list2)) (combine-coordinates operation (cdr list1) (cdr list2)) )
+    (cons (funcall operation (car list1) (car list2)) (sembejir-combine-coordinates operation (cdr list1) (cdr list2)) )
   )  
 )
 
@@ -228,7 +229,7 @@
   (lambda (target) (sembejir-can-throw-there target grid) ) 
 )
 
-(defun null-there (target grid) 
+(defun sembejir-null-there (target grid) 
   (let ((field (apply #'aref grid target)))
       (null field)
   ) 
@@ -245,22 +246,22 @@
     (when
       (and      
         (< (car src) (car target)) 
-        (funcall check (inc-x src ) grid)
+        (funcall check (sembejir-inc-x src ) grid)
      ) (push 'go-right result) )                        ; ->
     (when
       (and 
         (> (car src) (car target)) 
-        (funcall check (dec-x src ) grid) ; <-
+        (funcall check (sembejir-dec-x src ) grid) ; <-
      ) (push 'go-left result) )  
     (when
       (and 
         (< (cadr src) (cadr target))
-        (funcall check (inc-y src ) grid)
+        (funcall check (sembejir-inc-y src ) grid)
      ) (push 'go-up result) )                          ; ^
     (when
       (and 
         (> (cadr src) (cadr target))
-        (funcall check (dec-y src ) grid)
+        (funcall check (sembejir-dec-y src ) grid)
      ) (push 'go-down result) )                         ; v 
             
      (if (null result) 
@@ -281,22 +282,22 @@
 ;     ) 'stay )                        ; .  
 ;    ((and      
 ;        (< (car src) (car target)) 
-;        (funcall check (inc-x src ) grid)
+;        (funcall check (sembejir-inc-x src ) grid)
 ;     ) 'go-right )                        ; ->
 ;     
 ;     ((and 
 ;        (> (car src) (car target)) 
-;        (funcall check (dec-x src ) grid)
+;        (funcall check (sembejir-dec-x src ) grid)
 ;     ) 'go-left )                         ; <-
 ;     
 ;     ((and 
 ;        (< (cadr src) (cadr target))
-;        (funcall check (inc-y src ) grid)
+;        (funcall check (sembejir-inc-y src ) grid)
 ;     ) 'go-up )                           ; ^ 
 ;     
 ;     ((and 
 ;        (> (cadr src) (cadr target))
-;        (funcall check (dec-y src ) grid)
+;        (funcall check (sembejir-dec-y src ) grid)
 ;     ) 'go-down )                         ; v
 ;
 ;    (T nil)                             ; we cannot take the shortest route 
@@ -304,10 +305,10 @@
 ;)
 
 (defun sembejir-navigate-away (src target grid &optional (check #'sembejir-can-go-there) )
-  (if (< *CAN-HIT-DIST* (euclidean-distance src target))
+  (if (< *CAN-HIT-DIST* (sembejir-euclidean-distance src target))
     'stay                                                                                 ; wont run farther than *CAN-HIT-DIST*
     (let
-      ((new-target (combine-coordinates #'+ (combine-coordinates #'- src target) src )))  ; opačný vektor
+      ((new-target (sembejir-combine-coordinates #'+ (sembejir-combine-coordinates #'- src target) src )))  ; opačný vektor
       (if (sembejir-navigate src new-target grid check)
         (sembejir-navigate src new-target grid check)
         'stay
@@ -317,27 +318,27 @@
 )
 
 ; closest target pick
-(defun closest-target-helper (src target-list best-solution best-solution-distance comparison-fun) 
+(defun sembejir-sembejir-closest-target-helper (src target-list best-solution best-solution-distance comparison-fun) 
   (if (null (car target-list))                                                ; no more targets
      best-solution                                                        ; return best solution
-    (if (funcall comparison-fun (euclidean-distance src (car target-list)) best-solution-distance) ; current is beter
-      (closest-target-helper src (cdr target-list) (car target-list) (euclidean-distance src (car target-list)) comparison-fun)  ; recursive call with new best
-      (closest-target-helper src (cdr target-list) best-solution best-solution-distance comparison-fun)   ; recursive call with current best
+    (if (funcall comparison-fun (sembejir-euclidean-distance src (car target-list)) best-solution-distance) ; current is beter
+      (sembejir-sembejir-closest-target-helper src (cdr target-list) (car target-list) (sembejir-euclidean-distance src (car target-list)) comparison-fun)  ; recursive call with new best
+      (sembejir-sembejir-closest-target-helper src (cdr target-list) best-solution best-solution-distance comparison-fun)   ; recursive call with current best
     )
   )
 )
    
-(defun closest-target (src targets)
+(defun sembejir-closest-target (src targets)
   (if (null targets)
     nil
-    (closest-target-helper src targets nil 65535 #'<)  
+    (sembejir-sembejir-closest-target-helper src targets nil 65535 #'<)  
   )
 )
 
-(defun farthest-target (src targets)
+(defun sembejir-farthest-target (src targets)
   (if (null targets)
     nil
-    (closest-target-helper src targets nil 0 #'>)  
+    (sembejir-sembejir-closest-target-helper src targets nil 0 #'>)  
   )
 )
 ; new waypoint generator
@@ -349,12 +350,12 @@
 )
 (defun sembejir-make-new-waypoint (src target grid agent-body)
   (let ((waypoints (sembejir-agent-body-waypoints agent-body)) (new-wpts nil))
-    (sembejir-cond-add-waypoint (inc-x target) waypoints new-wpts grid)    
-    (sembejir-cond-add-waypoint (inc-y target) waypoints new-wpts grid)
-    (sembejir-cond-add-waypoint (dec-x target) waypoints new-wpts grid)
-    (sembejir-cond-add-waypoint (dec-y target) waypoints new-wpts grid)
+    (sembejir-cond-add-waypoint (sembejir-inc-x target) waypoints new-wpts grid)    
+    (sembejir-cond-add-waypoint (sembejir-inc-y target) waypoints new-wpts grid)
+    (sembejir-cond-add-waypoint (sembejir-dec-x target) waypoints new-wpts grid)
+    (sembejir-cond-add-waypoint (sembejir-dec-y target) waypoints new-wpts grid)
     
-    (closest-target src new-wpts)        
+    (sembejir-closest-target src new-wpts)        
   )
 )
 ; smarter navigation
@@ -409,8 +410,8 @@
 ;          (format t "Queue: ~S~%" queue)
           
           (let ((current-coord (pop queue)))            ; pick new coordinate from queue
-            (dolist (new-location (list-surrounding-locations current-coord    ; list all unvisited surrounding locations
-                                       (lambda (target grid) (and (sembejir-can-go-there target grid) (null-there target tmparr) ) ) 
+            (dolist (new-location (sembejir-list-surrounding-locations current-coord    ; list all unvisited surrounding locations
+                                       (lambda (target grid) (and (sembejir-can-go-there target grid) (sembejir-null-there target tmparr) ) ) 
                                        grid))
               (setf queue (append queue (list new-location) ))           ; add location
               (setf (apply #'aref tmparr new-location) current-coord )   ; add location parent
@@ -478,7 +479,7 @@
 )
 
 ; ball flight calculation
-(defun trajectory (point-from point-to)
+(defun sembejir-trajectory (point-from point-to)
   (let ((traj (go-through-dist-list point-to point-from)) (result nil)) ; calculate in reverse order
     (push point-to result)
     (dolist (square-info traj)
@@ -488,30 +489,30 @@
   ) 
 )
 
-(defun trajectory-coords-only-helper (lst)
+(defun sembejir-trajectory-coords-only-helper (lst)
   (if (null lst)
     nil
-    (cons (caar lst) (trajectory-coords-only-helper (cdr lst)) )
+    (cons (caar lst) (sembejir-trajectory-coords-only-helper (cdr lst)) )
   )
 )
 
-(defun trajectory-coords-only (point-from point-to)
-  (trajectory-coords-only-helper (trajectory point-from point-to))
+(defun sembejir-trajectory-coords-only (point-from point-to)
+  (sembejir-trajectory-coords-only-helper (sembejir-trajectory point-from point-to))
 )
 
 ; lists surrounding location coordinates based on predicate - object works with coordinates
-(defun list-surrounding-locations (coord predicate grid)
+(defun sembejir-list-surrounding-locations (coord predicate grid)
   (let ((result nil))    
-    (when (not (null (funcall predicate (inc-x coord) grid ))) (push (inc-x coord) result))
-    (when (not (null (funcall predicate (dec-x coord) grid ))) (push (dec-x coord) result))
-    (when (not (null (funcall predicate (inc-y coord) grid ))) (push (inc-y coord) result))
-    (when (not (null (funcall predicate (dec-y coord) grid ))) (push (dec-y coord) result))
+    (when (not (null (funcall predicate (sembejir-inc-x coord) grid ))) (push (sembejir-inc-x coord) result))
+    (when (not (null (funcall predicate (sembejir-dec-x coord) grid ))) (push (sembejir-dec-x coord) result))
+    (when (not (null (funcall predicate (sembejir-inc-y coord) grid ))) (push (sembejir-inc-y coord) result))
+    (when (not (null (funcall predicate (sembejir-dec-y coord) grid ))) (push (sembejir-dec-y coord) result))
     result   
   )
 )
 
 ; lists all location coordinates based on predicate  - predicate identifies object only
-(defun list-all-locations (predicate grid)
+(defun sembejir-list-all-locations (predicate grid)
   (let ((result nil))
     (dotimes (numberx (car (array-dimensions grid)))
       (dotimes (numbery (cadr (array-dimensions grid)))
@@ -535,7 +536,7 @@
   ;(values 'stop #'sefmbejir-do-something-smart-with-the-ball)
   
   (cond
-    ( (and (sembejir-enemy-has-balls grid) (equal 1 (euclidean-distance self-loc (sembejir-enemy-has-balls grid)))) (sembejir-hump-enemy self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball and I'm next to him
+    ( (and (sembejir-enemy-has-balls grid) (equal 1 (sembejir-euclidean-distance self-loc (sembejir-enemy-has-balls grid)))) (sembejir-hump-enemy self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball and I'm next to him
     ( (sembejir-enemy-has-balls grid) (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball
     ( (null (find-ball-location grid) ) 'grab-ball)                          ; ball not found AND enemy not holding it -> my clone must be holding it already --> stay
     ( T (sembejir-fetch-ball self grid near-ball has-ball self-loc) )
@@ -546,17 +547,17 @@
 (defun sembejir-do-something-smart-with-the-ball (self grid near-ball has-ball self-loc)
   (if (not has-ball)  
     (sembejir-do-something-smart-without-the-ball self grid near-ball has-ball self-loc)
-    (if (list-surrounding-locations self-loc (sembejir-make-coord-enemy-p) grid )   ; we are near an enemy
-      (values `(throw-ball ,@(car (list-surrounding-locations self-loc (sembejir-make-coord-enemy-p) grid ))) #'sembejir-hump-enemy)  ; throw the ball at him
-      (let ((all-enemies (list-all-locations (sembejir-make-enemy-p) grid)))                                                 ; otherwise list all enemies
+    (if (sembejir-list-surrounding-locations self-loc (sembejir-make-coord-enemy-p) grid )   ; we are near an enemy
+      (values `(throw-ball ,@(car (sembejir-list-surrounding-locations self-loc (sembejir-make-coord-enemy-p) grid ))) #'sembejir-hump-enemy)  ; throw the ball at him
+      (let ((all-enemies (sembejir-list-all-locations (sembejir-make-enemy-p) grid)))                                                 ; otherwise list all enemies
         (if (null (car all-enemies))
           (error "No enemies found!")
-          (let ((enemy-surroundings (list-surrounding-locations (closest-target self-loc all-enemies) #'sembejir-can-throw-there grid ) )) ; list surrounding locations of the closest enemy
+          (let ((enemy-surroundings (sembejir-list-surrounding-locations (sembejir-closest-target self-loc all-enemies) #'sembejir-can-throw-there grid ) )) ; list surrounding locations of the closest enemy
             (print "throwball> ");
             (format t "targeting ~S~%" (car all-enemies))
             (format t "~%enemy-surroundings ~S~%" enemy-surroundings)            
-            (format t "nearest ~S to ~S~%" (closest-target self-loc enemy-surroundings) self-loc)                                 
-            (values `(throw-ball ,@(closest-target self-loc enemy-surroundings)) #'sembejir-fetch-ball)                                    ; throw it near him
+            (format t "nearest ~S to ~S~%" (sembejir-closest-target self-loc enemy-surroundings) self-loc)                                 
+            (values `(throw-ball ,@(sembejir-closest-target self-loc enemy-surroundings)) #'sembejir-fetch-ball)                                    ; throw it near him
           )                    
         )  
       )
