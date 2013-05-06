@@ -1,16 +1,14 @@
-(defconstant my-name "SV")
-(defconstant my-short-name "SV")
 
 (defstructure (staryvac    ; replace "my-agent" by your unique name, as e.g. FIT username
                 (:include db-agent 
                   (body (make-staryvac-body))
                   (program 'staryvac-agent-program)
-                  (name my-name))) 
+                  (name "staryvac"))) 
   "Your agent for db-world.")
 
 (defstructure (staryvac-body 
                 (:include db-agent-body 
-                  (name my-short-name)
+                  (name "vst")
                  ))
                 (target nil)
                 (have-ball nil)
@@ -96,7 +94,7 @@
       ;(print "x")
     (setf next (staryvac-get-neigh grid position))
       (dolist (item next)
-        (when (is-enemy (aref grid (car item) (cadr item)))
+        (when (staryvac-is-enemy (aref grid (car item) (cadr item)))
           (return-from staryvac-get-next-enemy item)))
     (return-from staryvac-get-next-enemy nil)
     )
