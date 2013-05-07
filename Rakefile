@@ -29,7 +29,9 @@ CLEAN.include("*/*.mp4")
 CLEAN.include("**/*.fasl")
 CLEAN.include("**/*.fas")
 CLEAN.include(MP_SCRIPT)
-SP_READY_AGENTS = [:cackolen,
+SP_READY_AGENTS = [
+                   :brazdma1,#late
+                   :cackolen,
                    :chmelond,
                    :cincuada,
                    :cadekva1,#late
@@ -62,6 +64,7 @@ SP_READY_AGENTS = [:cackolen,
                    :wancavil
 ]
 MP_READY_AGENTS = [
+                   #:brazdma1,#late #polluting
                    #:cackolen,#nil is not of type number
                    #:cadekva1,#late #polluting
                    #:chmelond,#polluting
@@ -83,11 +86,11 @@ MP_READY_AGENTS = [
                    #:nohavja1,#nil is not of type number
                    :palkoigo,#late
                    :perutond,
-                   #:sembejir,#attempt to call euclid
+                   :sembejir,
                    #:silhaja6,#polluting
                    #:staryvac,#trying to take car of T
                    #:steklmar,#polluting
-                   #:stiplsta,#nil is not of type number
+                   #:stiplsta,#nil is not of type numberi #ignore
                    :strnaj11,
                    #:temnymar,#polluting
                    #:valespe3,#polluting
