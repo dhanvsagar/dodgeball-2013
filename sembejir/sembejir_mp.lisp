@@ -613,7 +613,7 @@
   (let ((result-loc (sembejir-closest-target self-loc enemy-locs)))
     (dolist (enemy-loc enemy-locs)
       (when (and 
-              (< (sembejir-euclidean-distance self-loc result-loc) (euclidean-distance self-loc enemy-loc))
+              (< (sembejir-euclidean-distance self-loc result-loc) (sembejir-euclidean-distance self-loc enemy-loc))
               (> *CAN-HIT-DIST* (sembejir-euclidean-distance self-loc enemy-loc))
               (sembejir-clear-view self-loc enemy-loc grid)
             )
@@ -682,7 +682,7 @@
 ;  (print "enemy-closer")
 ;  (print (sembejir-enemy-closer-p (find-ball-location grid) self-loc (list-all-locations (sembejir-make-enemy-p) grid)))
   (cond
-    ( (and (sembejir-enemy-has-balls grid) (equal 1 (euclidean-distance self-loc (sembejir-enemy-has-balls grid)))) (format t "~%>> Hump enemy") (sembejir-hump-enemy self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball and I'm next to him
+    ( (and (sembejir-enemy-has-balls grid) (equal 1 (sembejir-euclidean-distance self-loc (sembejir-enemy-has-balls grid)))) (format t "~%>> Hump enemy") (sembejir-hump-enemy self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball and I'm next to him
     ( (null (find-ball-location grid) ) (format t "~%>> Grabbing ball") 'grab-ball)                          ; ball not found AND enemy not holding it -> my clone must be holding it already --> stay
     ( (sembejir-enemy-has-balls grid) (format t "~%>> Running away") (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball
     ( (sembejir-enemy-closer-p (find-ball-location grid) self-loc (sembejir-list-all-locations (sembejir-make-enemy-p) grid)) (format t "~%>> Enemy gets the ball faster") (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy will get to the ball faster --> run away
