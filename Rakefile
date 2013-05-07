@@ -50,7 +50,7 @@ SP_READY_AGENTS = [
                    :milikjan,
                    :musilon4,#clisp only
                    :nohavja1,
-                   :palkoigo,#late
+                   :palkoigo,
                    :perutond,
                    :sembejir,
                    :silhaja6,
@@ -84,7 +84,7 @@ MP_READY_AGENTS = [
                    #:milikjan,#nil is not of type number
                    #:musilon4,#clisp only #non symbol used
                    #:nohavja1,#nil is not of type number
-                   :palkoigo,#late
+                   :palkoigo,
                    :perutond,
                    :sembejir,
                    #:silhaja6,#polluting
