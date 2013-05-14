@@ -12,13 +12,13 @@
                   (name cackolen-name)))
   "Your agent for db-world.")
 
-(defstructure (cackolen-body (:include db-agent-body (name cackolen-name) (sname "LCAC"))))
+(defstructure (cackolen-body (:include db-agent-body (name cackolen-name) (sname "LC"))))
 
 
 (defun cackolen-play-game (percept)
   (let* ((me (car percept))
          (grid (cadr percept))
-         (my-loc (cackolen-my-location grid))
+         (my-loc (object-loc me)) 
          (ball-on-my-loc (member-if (lambda (a) (typep a 'percept-object-ball)) (apply #'aref grid (object-loc me))))
          (ball-loc (find-ball-location grid))
          (holding-ball (object-contents me))
@@ -26,15 +26,23 @@
          (nearest-opponent (cackolen-find-nearest-opponent my-loc opponents-loc))
          (ball-on-opponent-loc (member-if #'(lambda (a) (equal a ball-loc)) opponents-loc))
          (opponent-holding-ball (cackolen-opponent-holds-ball grid))
+         ;'(format t "~&Nearest: ~A, Opponents: ~A" nearest-opponent opponents-loc)
          ;'(format t "~&My position: ~A, Ball position: ~A, Opponents: ~A, Nearest: ~A" my-loc ball-loc opponents-loc nearest-opponent)
          ;'(format t "~&Me holding ball: ~A, First stands on ball: ~A, Opponent with ball-loc: ~A" holding-ball ball-on-opponent-loc opponent-holding-ball)
         )
     (cond 
-     ( (not opponents-loc) 'stay )
-     ( ball-on-my-loc 'grab-ball )
+     ( (not my-loc) 'stay)
+     ;( ball-on-my-loc 'grab-ball )
+     ( ball-on-my-loc (cackolen-can-i-grab-ball my-loc nearest-opponent opponents-loc grid) )
      ( holding-ball (cackolen-hit-or-throw my-loc nearest-opponent) )
      ( ball-on-opponent-loc (cackolen-run-or-bump my-loc ball-loc grid))
      ( t (cackolen-decide-action my-loc ball-loc opponents-loc opponent-holding-ball grid)))))
+
+(defun cackolen-can-i-grab-ball (my-loc nearest-opponent opponents-loc grid)
+  (if (> (cadr nearest-opponent) 2) 
+    (return-from cackolen-can-i-grab-ball 'grab-ball)
+    (cackolen-get-away-ball my-loc opponents-loc grid)
+    ))
 
 
 (defun cackolen-decide-action (my-loc ball-loc opponents-loc opponent-holding-ball grid) 
@@ -50,7 +58,7 @@
         )
        (dolist (tmp opponents-loc) 
          (setf current (cackolen-manhattan-dist tmp ball-loc))
-         (when (< current (- my-distance 1)) 
+         (when (< current (- my-distance 2)) 
            ;(format t "~&NOT less for: ~A, distance is:~A" tmp current)
            (return-from cackolen-am-i-closest nil) ))
   (return-from cackolen-am-i-closest t)))
@@ -72,11 +80,12 @@
 (defun cackolen-get-away (my-loc run-from grid)
   (let* ( (distx (- (car my-loc) (car run-from))) 
           (disty (- (cadr my-loc) (cadr run-from)))
-          ;'(format t "~&distx: ~A, disty: ~A" distx disty)
+          ;'(format t "~&RUN: ~A, ME: ~A" run-from my-loc)
           (free-fields (cackolen-empty-neighbours grid my-loc))
           (maxdist 0) (whereto)
           ;'(format t "~&distx: ~A, disty: ~A, free fields: ~A" distx disty free-fields)
           )
+    (when (or (and (= distx 0) (= disty 1)) (and (= distx 1) (= disty 0))) (return-from cackolen-get-away (cackolen-take-step my-loc run-from)) )
     (dolist (tmp free-fields)
       (when (< maxdist (points-dist run-from tmp)) (setf maxdist (points-dist run-from tmp)) (setf whereto tmp) 
         ;(format t "~&IDEM: ~A, pretoze ~A" whereto maxdist) 
@@ -84,10 +93,35 @@
     (if (> maxdist 0) (cackolen-take-step my-loc whereto) 'stay )
    ))
 
+(defun cackolen-get-away-ball (my-loc opponents-loc grid)
+  "step away from ball"
+  (let* ((close-opponents) 
+         (free-fields (cackolen-empty-neighbours grid my-loc))
+         ;'(format t "~&FREE: ~A" free-fields) 
+         (step-on)
+         ;'(format t "~&STEP-ON: ~A" step-on)
+        )
+
+       (dolist (tmp opponents-loc)
+                 (when (= (cackolen-manhattan-dist my-loc tmp) 2) (setf close-opponents (append close-opponents (list tmp)))))
+       ;(format t "~&CLOSE: ~A" close-opponents)
+       
+       (dolist (field free-fields)
+           (block continue
+             (dolist (close close-opponents)
+                 (when (= (cackolen-manhattan-dist field close) 1) (return-from continue))
+             )
+             (setf step-on field)
+             ;(format t "~&Changing to: ~A" step-on)
+           )
+        )
+       ;(format t "~&HERE")
+       (if (null step-on) 'stay  (cackolen-take-step my-loc step-on) )))
+
 (defun cackolen-run-or-bump (my-loc ball-loc grid)
-  (let ( (dist (cackolen-manhattan-dist my-loc ball-loc)) ) 
+  (let ( (dist (points-dist my-loc ball-loc)) ) 
       (cond
-        ( (= dist 1) (cackolen-take-step my-loc ball-loc ))
+        ( (<= dist 2) (cackolen-take-step my-loc ball-loc ))
         (t (cackolen-get-away my-loc ball-loc grid))
       ))
   )
@@ -96,10 +130,10 @@
   "evaluates if to throw at agent or in front of him"
   (let* ( (distance (points-dist my-loc (car nearest-opponent)))
           (prob (- 100 (* 10 distance)))
-          ;'(format t "~&probprobability: ~A" prob )
+          ;'(format t "~&probability: ~A" prob )
     )       
     (cond 
-        ( (> prob 69) (return-from cackolen-hit-or-throw `(throw-ball ,@(car nearest-opponent))) )
+        ( (> prob 63) (return-from cackolen-hit-or-throw `(throw-ball ,@(car nearest-opponent))) )
         ( t (cackolen-chase-opponent my-loc nearest-opponent) )
   )))
 
@@ -108,7 +142,7 @@
   (let* ( (nearest (car nearest-opponent))
           (distx (- (car my-loc) (car nearest))) 
           (disty (- (cadr my-loc) (cadr nearest))) 
-          '(format t "~&NEAR: ~A, distx: ~A, disty: ~A" nearest distx disty)
+          ;'(format t "~&NEAR: ~A, distx: ~A, disty: ~A" nearest distx disty)
           )
     (cond ((> (abs distx) (abs disty)) `(throw-ball ,(- (car my-loc) (signum distx)) ,(cadr my-loc)))
           (t `(throw-ball ,(car my-loc) ,(- (cadr my-loc) (signum disty))))
@@ -118,6 +152,7 @@
 
 (defun cackolen-find-nearest-opponent (my-loc opponents-loc)
   "returns position of nearest opponent from opponent list"
+  (when (or (not my-loc) (not opponents-loc)) (return-from cackolen-find-nearest-opponent nil))
   (let* ( (mindist (cackolen-manhattan-dist my-loc (car opponents-loc)))
           (nearest-loc (car opponents-loc))
         ;'(format t "~&min distance: ~A, first opponent in list: ~A" mindist nearest-loc) 
@@ -135,12 +170,15 @@
    (+ (abs (- (car point-from) (car point-to))) (abs (- (cadr point-from) (cadr point-to))) ))
 
 (defun cackolen-take-step (my-loc next-step)
+  ;(format t "~&TAKE STEP: myloc ~A, next-step  ~A" my-loc next-step)
+  ;(when (null next-step) (print "RETURNING")(return-from cackolen-take-step 'stay) )
   (cond 
+     ( (null next-step) (return-from cackolen-take-step 'stay) )
      ( (> (car my-loc) (car next-step)) (return-from cackolen-take-step 'go-left) )
      ( (< (car my-loc) (car next-step)) (return-from cackolen-take-step 'go-right) )
      ( (< (cadr my-loc) (cadr next-step)) (return-from cackolen-take-step 'go-up) )
      ( (> (cadr my-loc) (cadr next-step)) (return-from cackolen-take-step 'go-down) )
-     (t 'stay)
+     ;(t 'stay)
   )
 )
 
@@ -215,20 +253,6 @@
   (if (and (not (equal (percept-object-name obj) "#")) 
            (not (equal (percept-object-name obj) cackolen-name)) 
            (not (equal (percept-object-name obj) "B")))
-      obj nil))
-
-(defun cackolen-my-location (grid)
-  "returns my location"
-    (dotimes (numberx (car (array-dimensions grid)))
-        (dotimes (numbery (cadr (array-dimensions grid)))
-            (when (identify-in-list #'cackolen-me-predicate (aref grid numberx numbery))
-                (return-from cackolen-my-location (list numberx numbery))
-            )
-        )) nil )
-
-(defmethod cackolen-me-predicate ((obj percept-object))
-  "me predicate"
-    (if (equal (percept-object-name obj) cackolen-name)
       obj nil))
 
 ;;------------THE END--------------

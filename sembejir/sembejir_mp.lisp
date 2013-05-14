@@ -18,24 +18,24 @@
          (me-percept (first (apply #'aref grid (object-loc me))))
          )              
          
-         (format t "~%~%==== DEBUG DUMP AND STUFF ====~%~%")
+         ;(format t "~%~%==== DEBUG DUMP AND STUFF ====~%~%")
          
-         (format t "name: ~S ~%" sembejir-agent-name)
+         ;(format t "name: ~S ~%" sembejir-agent-name)
          (when (null my-loc)
-            (format t "I'm dead! ~%")
+            ;(format t "I'm dead! ~%")
             ;(error "dead")
             (return-from sembejir-prgm 'stay)          
          )                
          
-         (format t "ball-on-my-loc: ~S ~%" ball-on-my-loc)
-         (format t "holding-ball: ~S ~%" holding-ball)
-         (format t "student-loc: ~S ~%" student-loc)
-         (format t "my-loc: ~S ~%" my-loc)
-         (format t "(sembejir-enemy-armed grid): ~S ~%" (sembejir-enemy-armed grid))
-         (format t "(sembejir-enemy-has-balls grid): ~S ~%" (sembejir-enemy-has-balls grid))
+         ;(format t "ball-on-my-loc: ~S ~%" ball-on-my-loc)
+         ;(format t "holding-ball: ~S ~%" holding-ball)
+         ;(format t "student-loc: ~S ~%" student-loc)
+         ;(format t "my-loc: ~S ~%" my-loc)
+         ;(format t "(sembejir-enemy-armed grid): ~S ~%" (sembejir-enemy-armed grid))
+         ;(format t "(sembejir-enemy-has-balls grid): ~S ~%" (sembejir-enemy-has-balls grid))
          
-         (format t "~%CURRENT-WPTS: ~S~%" (sembejir-agent-body-waypoints agent-body))                           
-         (format t "CURRENT-TACTICS: ~S~%~%" (sembejir-agent-body-tactics me))
+         ;(format t "~%CURRENT-WPTS: ~S~%" (sembejir-agent-body-waypoints agent-body))                           
+         ;(format t "CURRENT-TACTICS: ~S~%~%" (sembejir-agent-body-tactics me))
                   
          ;(multiple-value-bind (action new-tactics)                                                ; original idea with a state-machine                              
          ;   (funcall (sembejir-agent-body-tactics me) me grid ball-on-my-loc holding-ball my-loc) ; execute tactics!
@@ -361,31 +361,31 @@
 ; smarter navigation
 (defun sembejir-navigate-smarter (src target grid agent-body)
   (let ((current-target target))
-    (format t "Navigating to ~S... ~%" target)
+    ;(format t "Navigating to ~S... ~%" target)
     (if (equal src target)
       'stay
       (progn
         (when (not (equal target (sembejir-agent-body-waypoint-target agent-body) ) )  ; navigating elsewhere -> remove waypoints 
           (setf (sembejir-agent-body-waypoint-target agent-body) target)
           (setf (sembejir-agent-body-waypoints agent-body) nil)
-          (format t "  wpts reset... ~%") 
+          ;(format t "  wpts reset... ~%") 
         )
         (when (equal (car (sembejir-agent-body-waypoints agent-body)) src)                 ; if we are on a waypoint -> remove it
           (pop (sembejir-agent-body-waypoints agent-body))
-          (format t "  Standing at current waypoint -> remove... ~%")
+          ;(format t "  Standing at current waypoint -> remove... ~%")
         )
         (when (sembejir-agent-body-waypoints agent-body)                  ; if we have a waypoint to use, do so
           (setf current-target (car (sembejir-agent-body-waypoints agent-body)))
-          (format t "  Going at waypoint ~S~%" current-target)
+          ;(format t "  Going at waypoint ~S~%" current-target)
         )
         (if (sembejir-navigate src current-target grid)               ; try to sembejir-navigate to waypoint
           (sembejir-navigate src current-target grid)                 ; if succesful, return the direction
           (if (not (sembejir-make-new-waypoint src current-target grid agent-body))  ; else try to make up a new waypoint
             'stop                                    ; failed --> end simulation, we are unable get to the target
             (progn
-              (format t "  Navigation failed, looking for suitable waypoints near ~S~%" current-target)
+              ;(format t "  Navigation failed, looking for suitable waypoints near ~S~%" current-target)
               (push (sembejir-make-new-waypoint src current-target grid agent-body) (sembejir-agent-body-waypoints agent-body)) ; push new waypoint
-              (format t "  New waypoints ~S~%" (sembejir-agent-body-waypoints agent-body))                                     
+              ;(format t "  New waypoints ~S~%" (sembejir-agent-body-waypoints agent-body))                                     
               (sembejir-navigate-smarter src target grid agent-body)     ; try to sembejir-navigate again
             )
           )
@@ -397,7 +397,7 @@
 
 (defun sembejir-pre-plan-waypoints (src target grid)
   (progn
-    (format t "  Waypoint preplanning started...~%")
+    ;(format t "  Waypoint preplanning started...~%")
     (let ((tmparr (make-array (array-dimensions grid) :initial-element nil))
          (queue nil) (result (list src)))
       (push src queue)                          ; init BFS queue
@@ -431,7 +431,7 @@
       )
       
       (when (null (apply #'aref tmparr target))
-        (format t "  No path found! ~S~%" tmparr)        
+        ;(format t "  No path found! ~S~%" tmparr)        
       )
       
       result
@@ -445,25 +445,25 @@
       (progn
         (when (not (null flush-preplanned))
           (setf (sembejir-agent-body-waypoints agent-body) nil)
-          (format t "  wpts reset~%")           
+          ;(format t "  wpts reset~%")           
         )
         (when (not (equal target (sembejir-agent-body-waypoint-target agent-body) ) )  ; navigating elsewhere -> remove waypoints 
           (setf (sembejir-agent-body-waypoint-target agent-body) target)
           (setf (sembejir-agent-body-waypoints agent-body) nil)
-          (format t "  wpts reset, navigating to a new location... ~%") 
+          ;(format t "  wpts reset, navigating to a new location... ~%") 
         )
         (when (equal (car (sembejir-agent-body-waypoints agent-body)) src)                 ; if we are on a waypoint -> remove it
           (pop (sembejir-agent-body-waypoints agent-body))
-          (format t "  Standing at current waypoint -> remove... ~%")
+          ;(format t "  Standing at current waypoint -> remove... ~%")
         )
         (when (not (sembejir-agent-body-waypoints agent-body))                 ; if we are out of waypoints
           (setf (sembejir-agent-body-waypoint-target agent-body) target)
-          (format t "  Preplanned waypoints: ~S~%" (sembejir-pre-plan-waypoints src target grid))
+          ;(format t "  Preplanned waypoints: ~S~%" (sembejir-pre-plan-waypoints src target grid))
           (setf (sembejir-agent-body-waypoints agent-body) (sembejir-pre-plan-waypoints src target grid))                    
         )
         (when (sembejir-agent-body-waypoints agent-body)                  ; if we have a waypoint to use, do so
           (setf current-target (car (sembejir-agent-body-waypoints agent-body)))
-          (format t "  Going at waypoint ~S~%" current-target)
+          ;(format t "  Going at waypoint ~S~%" current-target)
         )
         (if (sembejir-navigate src current-target grid)               ; try to sembejir-navigate to waypoint
           (sembejir-navigate src current-target grid)                 ; if succesful, return the direction
@@ -554,9 +554,9 @@
           (error "No enemies found!")
           (let ((enemy-surroundings (sembejir-list-surrounding-locations (sembejir-closest-target self-loc all-enemies) #'sembejir-can-throw-there grid ) )) ; list surrounding locations of the closest enemy
             (print "throwball> ");
-            (format t "targeting ~S~%" (car all-enemies))
-            (format t "~%enemy-surroundings ~S~%" enemy-surroundings)            
-            (format t "nearest ~S to ~S~%" (sembejir-closest-target self-loc enemy-surroundings) self-loc)                                 
+            ;(format t "targeting ~S~%" (car all-enemies))
+            ;(format t "~%enemy-surroundings ~S~%" enemy-surroundings)            
+            ;(format t "nearest ~S to ~S~%" (sembejir-closest-target self-loc enemy-surroundings) self-loc)                                 
             (values `(throw-ball ,@(sembejir-closest-target self-loc enemy-surroundings)) #'sembejir-fetch-ball)                                    ; throw it near him
           )                    
         )  
@@ -635,20 +635,20 @@
           (progn  
              (print "enemy-too-far> ");                                                                                       ; enemy too far
              (let ((new-relative-target (sembejir-combine-coordinates #'truncate (sembejir-combine-coordinates #'- target self-loc) '(2 2))))
-                (format t "relative offset ~S~%" new-relative-target)
-                (format t "absolute-position ~S~%" (sembejir-combine-coordinates #'+ new-relative-target self-loc))
+                ;(format t "relative offset ~S~%" new-relative-target)
+                ;(format t "absolute-position ~S~%" (sembejir-combine-coordinates #'+ new-relative-target self-loc))
                 (values `(throw-ball ,@(sembejir-combine-coordinates #'+ new-relative-target self-loc)) #'sembejir-fetch-ball)                                    ; throw it at him            
              )
           )
           (progn                            ; existuje enemák blíž než *CAN-HIT-DIST*
             (print "throwball> ");
             (setf target (sembejir-find-suitable-target grid self-loc all-enemies))
-            (format t "Targeting player at: ~S ~%" target)            
+            ;(format t "Targeting player at: ~S ~%" target)            
             (let ((overshoot-target target) (found-loc nil) )
               (block loop-outer
                 (loop
                   (setf found-loc (sembejir-farthest-target self-loc (sembejir-list-surrounding-locations overshoot-target (sembejir-make-suitable-for-overshoot-p self-loc target) grid )))
-                  (format t "FOUND-LOC: ~S ~%" found-loc)
+                  ;(format t "FOUND-LOC: ~S ~%" found-loc)
                   (if found-loc
                     (if (or (equal found-loc overshoot-target) (< *CAN-HIT-DIST* (sembejir-euclidean-distance found-loc self-loc) ) (< (sembejir-euclidean-distance found-loc self-loc) (sembejir-euclidean-distance overshoot-target self-loc) ) ) ; pokud najdeme stejnou lokaci, vzdálenější jak *CAN-HIT-DIST*, nebo bližší --> konec
                       (progn (setf overshoot-target found-loc) (return-from loop-outer) )
@@ -658,8 +658,8 @@
                   ) 
                 )
               )
-              (format t "targeting enemy at ~S~%" target)
-              (format t "shooting at ~S~%" overshoot-target)                                
+              ;(format t "targeting enemy at ~S~%" target)
+              ;(format t "shooting at ~S~%" overshoot-target)                                
               (values `(throw-ball ,@overshoot-target) #'sembejir-fetch-ball)                                    ; throw it at him                         
             )
                         
@@ -672,7 +672,7 @@
 
 (defun sembejir-enemy-closer-p (target-loc my-loc enemy-loc-list)
   (dolist (enemy-loc enemy-loc-list)
-    (format t "base: ~S --> ~S vs. ~S result ~S" target-loc my-loc enemy-loc (< (sembejir-euclidean-distance target-loc enemy-loc) (sembejir-euclidean-distance target-loc my-loc) ))
+    ;(format t "base: ~S --> ~S vs. ~S result ~S" target-loc my-loc enemy-loc (< (sembejir-euclidean-distance target-loc enemy-loc) (sembejir-euclidean-distance target-loc my-loc) ))
     (when (< (sembejir-euclidean-distance target-loc enemy-loc) (sembejir-euclidean-distance target-loc my-loc) ) (return-from sembejir-enemy-closer-p T) ) 
   )
   nil 
@@ -682,11 +682,21 @@
 ;  (print "enemy-closer")
 ;  (print (sembejir-enemy-closer-p (find-ball-location grid) self-loc (list-all-locations (sembejir-make-enemy-p) grid)))
   (cond
-    ( (and (sembejir-enemy-has-balls grid) (equal 1 (sembejir-euclidean-distance self-loc (sembejir-enemy-has-balls grid)))) (format t "~%>> Hump enemy") (sembejir-hump-enemy self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball and I'm next to him
-    ( (null (find-ball-location grid) ) (format t "~%>> Grabbing ball") 'grab-ball)                          ; ball not found AND enemy not holding it -> my clone must be holding it already --> stay
-    ( (sembejir-enemy-has-balls grid) (format t "~%>> Running away") (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball
-    ( (sembejir-enemy-closer-p (find-ball-location grid) self-loc (sembejir-list-all-locations (sembejir-make-enemy-p) grid)) (format t "~%>> Enemy gets the ball faster") (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy will get to the ball faster --> run away
-    ( T (format t "~%>> Getting ball") (sembejir-fetch-ball self grid near-ball has-ball self-loc) )
+    ( (and (sembejir-enemy-has-balls grid) (equal 1 (sembejir-euclidean-distance self-loc (sembejir-enemy-has-balls grid))))
+     ;(format t "~%>> Hump enemy")
+     (sembejir-hump-enemy self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball and I'm next to him
+    ( (null (find-ball-location grid) ) 
+     ;(format t "~%>> Grabbing ball")
+     'grab-ball)                          ; ball not found AND enemy not holding it -> my clone must be holding it already --> stay
+    ( (sembejir-enemy-has-balls grid) 
+     ;(format t "~%>> Running away")
+     (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy is at the same spot as the ball
+    ( (sembejir-enemy-closer-p (find-ball-location grid) self-loc (sembejir-list-all-locations (sembejir-make-enemy-p) grid)) 
+     ;(format t "~%>> Enemy gets the ball faster")
+     (sembejir-run-away self grid near-ball has-ball self-loc) ) ; enemy will get to the ball faster --> run away
+    ( T 
+      ;(format t "~%>> Getting ball")
+      (sembejir-fetch-ball self grid near-ball has-ball self-loc) )
   )
       
 )

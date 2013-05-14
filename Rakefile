@@ -64,38 +64,38 @@ SP_READY_AGENTS = [
                    :wancavil
 ]
 MP_READY_AGENTS = [
-                   #:brazdma1,#late #polluting
+                   :brazdma1,#late
                    #:cackolen,#nil is not of type number
                    #:cadekva1,#late #polluting
-                   #:chmelond,#polluting
+                   :chmelond,
                    #:cincuada,#polluting
                    #:fifiksta,#clisp only #non symbol used
-                   #:fiserale,#probably infilooped
+                   #:fiserale,#probably infilooped #ignore
                    #:hanafran,#polluting
                    :hlusiond,
                    :hrubaeli,
                    #:kacurtom,#polluting
                    #:kersnmar,#not working #polluting
-                   #:kokorigo,#polluting
+                   :kokorigo,
                    #:kotrbluk,#nil is not of type number
                    #:kroupvla,#late #polluting
                    #:ludacrad,#polluting
                    #:macalkar,#polluting
                    #:milikjan,#nil is not of type number
-                   #:musilon4,#clisp only #non symbol used
+                   #:musilon4,#clisp only #ignore
                    #:nohavja1,#nil is not of type number
                    :palkoigo,
                    :perutond,
                    :sembejir,
-                   #:silhaja6,#polluting
+                   #:silhaja6,#polluting, #ignore
                    #:staryvac,#trying to take car of T
-                   #:steklmar,#polluting
+                   #:steklmar,#polluting, #ignore
                    #:stiplsta,#nil is not of type numberi #ignore
                    :strnaj11,
                    #:temnymar,#polluting
                    #:valespe3,#polluting
                    :vanikjak,
-                   #:wancavil #non symbol used
+                   :wancavil
 ]
 
 AGENTS.each do |agent|

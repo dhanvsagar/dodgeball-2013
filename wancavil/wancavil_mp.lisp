@@ -98,9 +98,9 @@
        :with choices = (wvi-make-circular (copy-list l))
        :collect (pop (cdr (nthcdr (random len) choices)))
        :while (plusp (decf len))))
-)
+  )
 
-(defun wvi-opponent-p ((obj percept-object))
+(defmethod wvi-opponent-p ((obj percept-object))
   "Know thy enemy."
   (if (and (not (equal (percept-object-name obj) "#")) 
            (not (equal (percept-object-name obj) wvi-agent-name)) 
@@ -108,7 +108,7 @@
       obj nil)
   )
 
-(defun wvi-has-ball-p ((obj percept-object))
+(defmethod wvi-has-ball-p ((obj percept-object))
   "Has the player ball?"
   (and (wvi-opponent-p obj) (percept-object-agent-has-ball obj)))
 
@@ -116,7 +116,6 @@
   (dolist (item list)
     (when (funcall pred item)
       (return-from wvi-identify-in-list item))) nil)
-
 
 (defmacro wvi-step-up (loc)
   `(wpt-add ,loc (mk-wpt 0 1)))
@@ -149,9 +148,10 @@
 
 (defstructure (wvi-body 
 	       (:include db-agent-body (name wvi-agent-name)))
-    (last-loc (mk-wpt 0 0))
-    (last-grid nil)
-)
+  (last-loc (mk-wpt 0 0))
+  (last-grid nil)
+  (same-pos-counter 0)
+  )
 
 (defun wvi-program (percept)
   (let* ((me (car percept))
@@ -159,18 +159,28 @@
 	 (my-loc (object-loc me))
 	 (ball-loc (wvi-find-in-grid grid))
 	 (last-pos (wvi-body-last-loc me))
+	 (same-pos-counter (wvi-body-same-pos-counter me))
+	 (stuck nil)
 	 (last-grid (wvi-body-last-grid me))
-         (ball-on-my-loc (member-if (lambda (a) (typep a 'percept-object-ball)) (apply #'aref grid my-loc)))
-         (holding-ball (object-contents me)))
-    
+	 (ball-on-my-loc (member-if (lambda (a) (typep a 'percept-object-ball)) (apply #'aref grid my-loc)))
+	 (holding-ball (object-contents me)))
+
     (setf (wvi-body-last-loc me) my-loc)
     (setf (wvi-body-last-grid me) grid)
     (cond 
       ((not (wvi-find-in-grid grid :test #'wvi-opponent-p)) 'stop)
-      (ball-on-my-loc 'grab-ball)
+      (ball-on-my-loc (wvi-grab-ball grid my-loc last-pos))
       (holding-ball `(throw-ball ,@(wvi-where-to-throw grid my-loc)))
-      ((wvi-has-anybody-moved grid last-grid my-loc ball-loc) (wvi-go-for-ball grid my-loc ball-loc nil)) 
+      ((wvi-has-anybody-moved grid last-grid my-loc ball-loc) (wvi-nobody-moved grid my-loc ball-loc)) 
       (t (wvi-where-to-go grid my-loc ball-loc))))
+  )
+
+(defun wvi-grab-ball (grid my-loc old-loc)
+  "Is it safe to grab the ball?"
+  (let ((opponent (reduce #'wvi-< (wvi-find-list-in-grid grid my-loc))))
+    (if (> 3 (car opponent))
+	(wvi-back-off grid my-loc my-loc)
+	'grab-ball))
   )
 
 (defun wvi-has-anybody-moved (grid last-grid loc ball-loc)
@@ -181,12 +191,19 @@
       nil
       (let* ((new-ops (wvi-find-list-in-grid grid loc))
 	     (old-ops (wvi-find-list-in-grid last-grid loc))
-	     (dif-ops (set-difference new-ops old-ops :test #'wvi-same-op)))
-	(if (null dif-ops)
-	    t
-	    nil))
+	     (dif-ops (set-difference new-ops old-ops :test #'wvi-same-op))
+	     (old-ball (wvi-find-in-grid last-grid)))
+	(cond
+	  ((null old-ball) nil)
+	  ((and (null dif-ops) (wpt-equal ball-loc old-ball)) t)
+	  (t nil)))
       )
-)
+  )
+
+(defun wvi-nobody-moved (grid my-loc ball-loc)
+  (let ((opponent (reduce #'wvi-< (wvi-find-list-in-grid grid ball-loc))))
+    (wvi-go-for-ball grid my-loc ball-loc opponent))
+  )
 
 (defun wvi-where-to-go (grid my-loc ball-loc)
   "Am I close enough to the ball to go for it or better back off?"
@@ -200,7 +217,7 @@
 	 (my-m-distance (wpt-m-distance my-loc ball-loc))
 	 (my-distance (wpt-distance my-loc ball-loc)))
     (cond 
-      ((< my-m-distance (+ (car opponent) 2)) (wvi-go-for-ball grid my-loc ball-loc opponent))
+      ((< my-m-distance (+ (car opponent) 3)) (wvi-go-for-ball grid my-loc ball-loc opponent))
       ((< my-distance (1+ *CAN-HIT-DIST*)) (wvi-back-off grid my-loc ball-loc))
       (t (wvi-come-closer grid my-loc ball-loc))))
   )
@@ -223,11 +240,15 @@
 (defun wvi-go-for-ball (grid my-loc ball-loc opponent)
   "Gwaan bwoy!"
   (let ((my-path (wvi-next-step grid my-loc ball-loc (list my-loc)))
-	(op-path (wvi-next-step grid (cdr opponent) ball-loc (list (cdr opponent)))))
+	(op-path (wvi-next-step grid (cdr opponent) ball-loc (list (cdr opponent))))
+	(my-ball-dist (wpt-m-distance my-loc ball-loc))
+	(op-ball-dist (wpt-m-distance (cdr opponent) ball-loc)))
     (cond
       ((null my-path) 'stay)
+      ((and (= 1 my-ball-dist) (= 0 op-ball-dist)) 'stay)
       ((null op-path) (wvi-where my-loc (car my-path)))
-      ((< (length my-path) (+ (length op-path) 2)) (wvi-where my-loc (car my-path)))
+      ((and (= 1 my-ball-dist) (= 1 op-ball-dist)) 'stay)
+      ((< (length my-path) (+ (length op-path) 3)) (wvi-where my-loc (car my-path)))
       ((= 1 (wpt-distance my-loc (cdr opponent))) (wvi-where my-loc
 							     (wvi-one-step grid my-loc ball-loc t :cmp #'wvi-<)))
       (t (wvi-back-off grid my-loc ball-loc))))
@@ -236,12 +257,15 @@
 (defun wvi-back-off (grid my-loc ball-loc)
   "Run away it not safe here"
   (let* ((safe-place (wvi-one-step grid my-loc ball-loc))
-	 (path (wvi-next-step grid my-loc safe-place (list my-loc))))
+	 (path (wvi-next-step grid my-loc safe-place (list my-loc)))
+	 (distance (wpt-m-distance my-loc ball-loc)))
+    (if (= 1 distance)
+	(return-from wvi-back-off (wvi-where my-loc ball-loc)))
     (if (null path)
 	'stay
 	(wvi-where my-loc (car path))))
   )
-
+  
 (defun wvi-one-step (grid my-loc ball-loc &optional (ignore nil) &key (cmp #'wvi->))
   "Where is it safer to go?"
   (let ((options (list 
@@ -279,9 +303,9 @@
 	(return-from wvi-next-step nil))
     (if (wpt-equal my-loc dst-loc)
 	(return-from wvi-next-step nil))
-    (if (> (length prev-loc) (+ (wpt-m-distance (car (last prev-loc)) dst-loc) 3))
+    (if (> (length prev-loc) (+ (wpt-m-distance (car (last prev-loc)) dst-loc) 4))
 	(return-from wvi-next-step nil))
-    (sort options #'< :key #'car)
+    (setf options (sort (copy-list options) #'< :key #'car))
     (dolist (n options)
       (block iter
 	(cond 
@@ -308,12 +332,12 @@
   (if (wvi-is-in-grid loc (wvi-grid-bounds grid))
       (if ignore
 	  t
-      (let ((obj (aref grid (wpt-x loc) (wpt-y loc))))
-	(if (or
-	     (null obj)
-	     (wvi-identify-in-list #'percept-object-ball-p obj))
-	    t
-	    nil)))
+	  (let ((obj (aref grid (wpt-x loc) (wpt-y loc))))
+	    (if (or
+		 (null obj)
+		 (wvi-identify-in-list #'percept-object-ball-p obj))
+		t
+		nil)))
       nil)
   )
 
@@ -341,12 +365,11 @@
 (defun wvi-where-to-throw (grid my-loc)
   "Be clever and throw wisely in the right direction."
   (let* ((agents (wvi-find-list-in-grid grid my-loc :dst #'wpt-distance)) 
-	 (p-targets (remove-if #'endp (mapcar #'(lambda (a)(if (< (car a) *CAN-HIT-DIST*) a)) agents))) 
-	 (sure-zone (wvi-danger-zone grid my-loc 2))
-    	 (danger-zone (wvi-danger-zone grid my-loc 5))
+	 (p-targets (remove-if #'endp (mapcar #'(lambda (a)(if (< (car a) (1- *CAN-HIT-DIST*)) a)) agents))) 
+	 (sure-zone (wvi-danger-zone grid my-loc *SURE-HIT-DIST*))
+	 (danger-zone (wvi-danger-zone grid my-loc (1- *CAN-HIT-DIST*)))
 	 (targets nil)
 	 (got-it nil))
-
     (when (null (car p-targets))
       (let* ((closest (cdr (reduce #'wvi-< agents)))
 	     (options (list 
@@ -356,7 +379,7 @@
 		       (wvi-step-it grid (wvi-step-left my-loc) closest))))
 	(return-from wvi-where-to-throw (cdr (reduce #'wvi-< (remove-if #'endp options))))))
 
-    (sort agents #'< :key #'car)
+    (setf agents (sort (copy-list agents) #'< :key #'car))
     (dolist (n sure-zone)
       (let ((hit (intersection (mapcar #'cdr agents) (go-through-dist-list my-loc n) :test #'(lambda (p q) (wpt-equal p (car q))))))
 	(unless (null hit)

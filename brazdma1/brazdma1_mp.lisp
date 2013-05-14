@@ -110,7 +110,7 @@
 (defun brazdma1-direction->position (from direction)
   (cond ((eq direction 'UP) (list (- (first from) 1) (second from)))
         ((eq direction 'DOWN) (list (+ (first from) 1) (second from)))
-        ((eq direction 'RIGHT) (list (first from) (+ (second from) 1))) #polluting
+        ((eq direction 'RIGHT) (list (first from) (+ (second from) 1))) 
         ((eq direction 'LEFT) (list (first from) (- (second from) 1)))))
 
 (defun brazdma1-check (grid moves &optional (objective NIL) (move NIL))
@@ -415,7 +415,7 @@
         `(THROW-BALL ,(first pass) ,(second pass))))))
 
 (defun brazdma1-training (grid dX dY agents my-loc my-ball)
-  (print "TRAINING")
+  ;(print "TRAINING")
   (when (not (equal my-ball NIL))
     (return-from brazdma1-training (brazdma1-training-offense grid dX dY agents my-loc)))
   (let ((target (brazdma1-aim-nearest my-loc agents))
