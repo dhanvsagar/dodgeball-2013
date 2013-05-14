@@ -28,6 +28,7 @@ CLEAN.include("result.mp4")
 CLEAN.include("*/*.mp4")
 CLEAN.include("**/*.fasl")
 CLEAN.include("**/*.fas")
+CLEAN.include("**/*.lib")
 CLEAN.include(MP_SCRIPT)
 SP_READY_AGENTS = [
                    :brazdma1,#late
