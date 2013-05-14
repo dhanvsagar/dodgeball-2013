@@ -67,7 +67,7 @@ MP_READY_AGENTS = [
                    :brazdma1,#late
                    #:cackolen,#nil is not of type number
                    #:cadekva1,#late #polluting
-                   :chmelond,
+                   :chmelond, #crashes sometimes
                    #:cincuada,#polluting
                    #:fifiksta,#clisp only #non symbol used
                    #:fiserale,#probably infilooped #ignore
@@ -79,8 +79,8 @@ MP_READY_AGENTS = [
                    :kokorigo,
                    #:kotrbluk,#nil is not of type number
                    #:kroupvla,#late #polluting
-                   #:ludacrad,#polluting
-                   #:macalkar,#polluting
+                   :ludacrad,
+                   :macalkar,
                    #:milikjan,#nil is not of type number
                    #:musilon4,#clisp only #ignore
                    #:nohavja1,#nil is not of type number
@@ -92,8 +92,8 @@ MP_READY_AGENTS = [
                    #:steklmar,#polluting, #ignore
                    #:stiplsta,#nil is not of type numberi #ignore
                    :strnaj11,
-                   #:temnymar,#polluting
-                   #:valespe3,#polluting
+                   :temnymar,
+                   :valespe3,
                    :vanikjak,
                    :wancavil
 ]
