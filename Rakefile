@@ -72,15 +72,15 @@ MP_READY_AGENTS = [
                    #:cincuada,#polluting
                    #:fifiksta,#clisp only #non symbol used
                    #:fiserale,#probably infilooped #ignore
-                   #:hanafran,#polluting
+                   :hanafran,#crashes
                    :hlusiond,
                    :hrubaeli,
-                   #:kacurtom,#polluting
+                   :kacurtom,
                    #:kersnmar,#not working #polluting
                    :kokorigo,
                    #:kotrbluk,#nil is not of type number
-                   #:kroupvla,#late #polluting
-                   :ludacrad,
+                   #:kroupvla,#late #crashes
+                   #:ludacrad,#crashes
                    :macalkar,
                    #:milikjan,#nil is not of type number
                    #:musilon4,#clisp only #ignore
@@ -140,7 +140,9 @@ AGENTS.each do |agent|
 
 end
 
-file MP_SCRIPT => MP_AGENTS do
+file "Rakefile"
+
+file MP_SCRIPT => MP_AGENTS + ["Rakefile"] do
     IO.write(MP_SCRIPT, multi_player_script)
     File.chmod 0755, MP_SCRIPT
 end

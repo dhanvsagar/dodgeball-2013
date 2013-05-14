@@ -21,214 +21,214 @@
 (defun kroupvla-agent-program (percept)
   (let* ((me (car percept))
          (grid (cadr percept)))
-    (print (kroupvla-agent-body-command-queue me))
-    (print (kroupvla-agent-body-state me))
-    (next-action grid me)))
+    ;(print (kroupvla-agent-body-command-queue me))
+    ;(print (kroupvla-agent-body-state me))
+    (kroupvla-next-action grid me)))
 
-;; curry function from http://cl-cookbook.sourceforge.net/functions.html
-(defun curry (function &rest args)
+;; kroupvla-curry function from http://cl-cookbook.sourceforge.net/functions.html
+(defun kroupvla-curry (function &rest args)
   (lambda (&rest more-args)
     (apply function (append args more-args))))
 
 ;; core agent definition
 
-(defun next-action (grid me)
+(defun kroupvla-next-action (grid me)
     (when (= 0 (length (kroupvla-agent-body-command-queue me)))
-      (setf (kroupvla-agent-body-state me) (next-state (kroupvla-agent-body-state me)))
-      (setf (kroupvla-agent-body-command-queue me) (issue-commands (kroupvla-agent-body-state me) grid))
-      (print 'issuing-commands)
-      (print (kroupvla-agent-body-command-queue me)) 
-      (print (kroupvla-agent-body-state me))
+      (setf (kroupvla-agent-body-state me) (kroupvlanext-state (kroupvla-agent-body-state me)))
+      (setf (kroupvla-agent-body-command-queue me) (kroupvla-issue-commands (kroupvla-agent-body-state me) grid))
+      ;(print 'issuing-commands)
+      ;(print (kroupvla-agent-body-command-queue me)) 
+      ;(print (kroupvla-agent-body-state me))
       )
     (pop (kroupvla-agent-body-command-queue me)))
 
 ;; agent state machine
 
-(defun next-state (state)
+(defun kroupvlanext-state (state)
   (cdr (assoc state '((0 . 1) (1 . 2) (2 . 3) (3 . 1))))) 
 
-(defun issue-commands (state grid)
-  (funcall (command-functions state) grid))
+(defun kroupvla-issue-commands (state grid)
+  (funcall (kroupvla-command-functions state) grid))
   
-(defun command-functions (state)
-  (cdr (assoc state '((1 . state-1-commands) (2 . state-2-commands) (3 . state-3-commands)))))
+(defun kroupvla-command-functions (state)
+  (cdr (assoc state '((1 . kroupvla-state-1-commands) (2 . kroupvla-state-2-commands) (3 . kroupvla-state-3-commands)))))
 
-(defun state-1-commands (grid)
-  (go-grab-ball grid))
+(defun kroupvla-state-1-commands (grid)
+  (kroupvla-go-grab-ball grid))
 
-(defun state-2-commands (grid)
-  (append (list (throw-ball-front-of-agent grid)) (go-harass-agent grid)))
+(defun kroupvla-state-2-commands (grid)
+  (append (list (kroupvla-throw-ball-front-of-agent grid)) (kroupvla-go-harass-agent grid)))
  
-(defun state-3-commands (grid)
-  (append '(grab-ball) (list (throw-ball-neighbor-agent grid)) '(stay) (list (bump-neighbor-agent grid)) (list (bump-neighbor-agent grid)) (list (bump-neighbor-agent grid)) '(stay) ))
+(defun kroupvla-state-3-commands (grid)
+  (append '(grab-ball) (list (kroupvla-throw-ball-neighbor-agent grid)) '(stay) (list (kroupvla-bump-neighbor-agent grid)) (list (kroupvla-bump-neighbor-agent grid)) (list (kroupvla-bump-neighbor-agent grid)) '(stay) ))
   
 ;; functions to realize agent STM
 
-(defun go-grab-ball (grid)
-  (append (walk-to-ball grid (find-student-location grid)) '(grab-ball)))
+(defun kroupvla-go-grab-ball (grid)
+  (append (kroupvla-walk-to-ball grid (find-student-location grid)) '(grab-ball)))
 
-(defun go-harass-agent (grid)
-  (walk-to-agent grid (find-student-location grid)))
+(defun kroupvla-go-harass-agent (grid)
+  (kroupvla-walk-to-agent grid (find-student-location grid)))
 
-(defun throw-ball-front-of-agent (grid)
-  `(throw-ball ,@(next-to-closest-agent grid)))
+(defun kroupvla-throw-ball-front-of-agent (grid)
+  `(throw-ball ,@(kroupvla-next-to-closest-agent grid)))
 
-(defun throw-ball-neighbor-agent (grid)
-  `(throw-ball ,@(neighbor-agent-tile grid)))
+(defun kroupvla-throw-ball-neighbor-agent (grid)
+  `(throw-ball ,@(kroupvla-neighbor-agent-tile grid)))
 
-(defun bump-neighbor-agent (grid)
-  (direction (find-student-location grid) (neighbor-agent-tile grid)))
+(defun kroupvla-bump-neighbor-agent (grid)
+  (kroupvla-direction (find-student-location grid) (kroupvla-neighbor-agent-tile grid)))
 
-(defun neighbor-agent-tile (grid)
-  (dolist (tile (neighbor-tiles (find-student-location grid)))
-    (when (identify-in-list #'evil-agent-p (aref grid (car tile) (cadr tile)))
-      (return-from neighbor-agent-tile tile))))
+(defun kroupvla-neighbor-agent-tile (grid)
+  (dolist (tile (kroupvla-neighbor-tiles (find-student-location grid)))
+    (when (identify-in-list #'kroupvla-evil-agent-p (aref grid (car tile) (cadr tile)))
+      (return-from kroupvla-neighbor-agent-tile tile))))
 
-(defun next-to-closest-agent (grid)
-  (car (find-nearest (curry #'evil-agent-in-neighborhood-pred grid) (cost-map-player grid))))
+(defun kroupvla-next-to-closest-agent (grid)
+  (car (kroupvla-find-nearest (kroupvla-curry #'kroupvla-evil-agent-in-neighborhood-pred grid) (kroupvla-cost-map-player grid))))
 
-(defun evil-agent-pred (grid til)
-  (identify-in-list #'evil-agent-p (aref grid (car tile) (cadr tile))))
+(defun kroupvla-evil-agent-pred (grid til)
+  (identify-in-list #'kroupvla-evil-agent-p (aref grid (car tile) (cadr tile))))
 
-(defun evil-agent-in-neighborhood-pred (grid til)
-  (dolist (tile (neighbor-tiles til))
-    (when (identify-in-list #'evil-agent-p (aref grid (car tile) (cadr tile)))
-      (return-from evil-agent-in-neighborhood-pred t))))
+(defun kroupvla-evil-agent-in-neighborhood-pred (grid til)
+  (dolist (tile (kroupvla-neighbor-tiles til))
+    (when (identify-in-list #'kroupvla-evil-agent-p (aref grid (car tile) (cadr tile)))
+      (return-from kroupvla-evil-agent-in-neighborhood-pred t))))
 
-(defun find-nearest (predicate cost-map)
-  (nearest (find-matching predicate cost-map)))
+(defun kroupvla-find-nearest (predicate cost-map)
+  (kroupvla-nearest (kroupvla-find-matching predicate cost-map)))
 
-(defun nearest (alist)
+(defun kroupvla-nearest (alist)
   (reduce #'(lambda (entry-1 entry-2) (if (< (cdr entry-1) (cdr entry-2)) entry-1 entry-2)) alist))
   
-(defun find-matching (predicate cost-map)
-  (remove-if-not (lambda (entry) (funcall predicate (car entry))) cost-map))
+(defun kroupvla-find-matching (predicate kroupvla-cost-map)
+  (remove-if-not (lambda (entry) (funcall predicate (car entry))) kroupvla-cost-map))
 
-(defmethod evil-agent-p ((obj percept-object))
+(defmethod kroupvla-evil-agent-p ((obj percept-object))
   (if (equal (percept-object-name obj) "WB")
       obj nil))
   
-(defun walk-to-agent (grid self-tile)
-  (path-commands (create-path self-tile (next-to-closest-agent grid) (cost-map grid self-tile))))
+(defun kroupvla-walk-to-agent (grid self-tile)
+  (kroupvla-path-commands (kroupvla-create-path self-tile (kroupvla-next-to-closest-agent grid) (kroupvla-cost-map grid self-tile))))
 
-(defun walk-to-ball (grid self-tile)
-  (path-commands (create-path self-tile (find-ball-location grid) (cost-map grid self-tile))))
+(defun kroupvla-walk-to-ball (grid self-tile)
+  (kroupvla-path-commands (kroupvla-create-path self-tile (find-ball-location grid) (kroupvla-cost-map grid self-tile))))
 
-(defun path-commands (path)
+(defun kroupvla-path-commands (path)
   (loop for (from to) on path while to 
-        collect (direction from to)))
+        collect (kroupvla-direction from to)))
 
-(defun direction (tile-from tile-to)
-  (delta-to-direction (delta tile-from tile-to)))
+(defun kroupvla-direction (tile-from tile-to)
+  (kroupvla-delta-to-direction (kroupvla-delta tile-from tile-to)))
 
-(defun delta (tile-from tile-to)
+(defun kroupvla-delta (tile-from tile-to)
   (list (- (car tile-to) (car tile-from)) (- (cadr tile-to) (cadr tile-from))))
 
-(defun delta-to-direction (tile-delta)
+(defun kroupvla-delta-to-direction (tile-delta)
   (cdr (assoc tile-delta '(((1 0) . go-right) ((-1 0) . go-left) ((0 1) . go-up) ((0 -1) . go-down)) :test #'equal)))
 
-(defun create-path (start-tile goal-tile cost-map)
-  "if goal-tile is not in cost-map, then it is unreachable"
-  (if (alist-get goal-tile cost-map) (reverse (reconstruct-path (list goal-tile) goal-tile cost-map)) nil))
+(defun kroupvla-create-path (start-tile goal-tile kroupvla-cost-map)
+  "if goal-tile is not in kroupvla-cost-map, then it is unreachable"
+  (if (kroupvla-alist-get goal-tile kroupvla-cost-map) (reverse (kroupvla-reconstruct-path (list goal-tile) goal-tile kroupvla-cost-map)) nil))
 
-(defun reconstruct-path (path actual-tile cost-map)
-  (if (eq (cost-of-tile actual-tile cost-map) 0) (return-from reconstruct-path path)
-      (let ((tiles-back (steps-back (1- (cost-of-tile actual-tile cost-map)) cost-map)))
+(defun kroupvla-reconstruct-path (path actual-tile kroupvla-cost-map)
+  (if (eq (kroupvla-cost-of-tile actual-tile kroupvla-cost-map) 0) (return-from kroupvla-reconstruct-path path)
+      (let ((tiles-back (kroupvla-steps-back (1- (kroupvla-cost-of-tile actual-tile kroupvla-cost-map)) kroupvla-cost-map)))
         (dolist (candidate tiles-back)
-          (when (neighbors candidate actual-tile) (return-from reconstruct-path (reconstruct-path (append path (list candidate)) candidate cost-map)))
+          (when (kroupvla-neighbors candidate actual-tile) (return-from kroupvla-reconstruct-path (kroupvla-reconstruct-path (append path (list candidate)) candidate kroupvla-cost-map)))
           )
         )
       )
   )
 
-(defun steps-back (cost cost-map)
-  (mapcar #'car (remove-if-not (lambda (entry) (equal (cdr entry) cost)) cost-map)))
+(defun kroupvla-steps-back (cost kroupvla-cost-map)
+  (mapcar #'car (remove-if-not (lambda (entry) (equal (cdr entry) cost)) kroupvla-cost-map)))
 
-(defun neighbors (tile-1 tile-2)
-  (if (member tile-1 (neighbor-tiles tile-2) :test #'equal) t nil))
+(defun kroupvla-neighbors (tile-1 tile-2)
+  (if (member tile-1 (kroupvla-neighbor-tiles tile-2) :test #'equal) t nil))
 
-(defun cost-map-player (grid)
+(defun kroupvla-cost-map-player (grid)
   "computes cost map for student player"
-  (cost-map grid (find-student-location grid)))
+  (kroupvla-cost-map grid (find-student-location grid)))
 
-(defun cost-map (grid start-tile)
+(defun kroupvla-cost-map (grid start-tile)
   "computes cost map from start-tile to every reachable tile"
   (setq tile-cost (list))
   (setq queue (list))
-  (setq queue (enqueue queue start-tile))
-  (setq tile-cost (add-tile-cost tile-cost start-tile 0))
-    ;(print (unvisited-neighbor-tiles grid (list 4 5) tile-cost))
+  (setq queue (kroupvla-enqueue queue start-tile))
+  (setq tile-cost (kroupvla-add-tile-cost tile-cost start-tile 0))
+    ;(print (kroupvla-unvisited-neighbor-tiles grid (list 4 5) tile-cost))
   (loop while (not (= 0 (length queue))) do
       (let ((tile (pop queue)))
-        (let ((unvisited (unvisited-neighbor-tiles grid tile tile-cost)))
+        (let ((unvisited (kroupvla-unvisited-neighbor-tiles grid tile tile-cost)))
           (dolist (new-tile unvisited)
-            (setq tile-cost (add-tile-cost tile-cost new-tile (1+ (cost-of-tile tile tile-cost))))
-            (setq queue (enqueue queue new-tile))
+            (setq tile-cost (kroupvla-add-tile-cost tile-cost new-tile (1+ (kroupvla-cost-of-tile tile tile-cost))))
+            (setq queue (kroupvla-enqueue queue new-tile))
           )
         )
       )
     )
-  (return-from cost-map tile-cost)
+  (return-from kroupvla-cost-map tile-cost)
 )
 
-(defun cost-of-tile (tile tile-cost)
+(defun kroupvla-cost-of-tile (tile tile-cost)
   "returns cost of tile from tile-cost alist"
-  (cdr (alist-get tile tile-cost)))
+  (cdr (kroupvla-alist-get tile tile-cost)))
   
-(defun alist-get (key alist)
+(defun kroupvla-alist-get (key alist)
   "returns entry from alist using equal for comparison"
   (assoc key alist :test #'equal))
       
-(defun add-tile-cost (alist tile cost)
+(defun kroupvla-add-tile-cost (alist tile cost)
   "returns alist with new entry"
   (acons tile cost alist))
   ;(cons (cons tile cost) alist))
 
-(defun enqueue (queue elem)
+(defun kroupvla-enqueue (queue elem)
   "adds item to the back of queue"
   (append queue (list elem)))
 
 ;; tile operations
 
-(defun unvisited-neighbor-tiles (grid tile tile-cost)
-  (remove-if #'(lambda (til) (alist-get til tile-cost)) (unoccupied-neighbor-tiles grid tile)))
-  ; debug (dolist (x (unoccupied-neighbor-tiles grid tile)) (print x) (print (assoc x tile-cost))))
+(defun kroupvla-unvisited-neighbor-tiles (grid tile tile-cost)
+  (remove-if #'(lambda (til) (kroupvla-alist-get til tile-cost)) (kroupvla-unoccupied-neighbor-tiles grid tile)))
+  ; debug (dolist (x (kroupvla-unoccupied-neighbor-tiles grid tile)) (print x) (print (assoc x tile-cost))))
 
-(defun empty-tile (grid tile)
-  (not (or (contains-wall grid tile)
-            (contains-evil-agent grid tile)
+(defun kroupvla-empty-tile (grid tile)
+  (not (or (kroupvla-contains-wall grid tile)
+            (kroupvla-contains-evil-agent grid tile)
        )
    ))
 
-(defun wall-p ((obj percept-object))
+(defmethod kroupvla-wall-p ((obj percept-object))
   (if (equal (percept-object-name obj) "#") 
       obj nil))
 
-(defun evil-agent-p ((obj percept-object))
+(defmethod kroupvla-evil-agent-p ((obj percept-object))
   (if (equal (percept-object-name obj) "WT")
       obj nil))
 
-(defun contains-wall (grid tile)
-  (if (identify-in-list #'wall-p (apply #'aref grid tile)) t nil))
+(defun kroupvla-contains-wall (grid tile)
+  (if (identify-in-list 'kroupvla-wall-p (apply #'aref grid tile)) t nil))
 
-(defun contains-evil-agent (grid tile)
-  (if (identify-in-list #'evil-agent-p (apply #'aref grid tile)) t nil))
+(defun kroupvla-contains-evil-agent (grid tile)
+  (if (identify-in-list #'kroupvla-evil-agent-p (apply #'aref grid tile)) t nil))
 
-(defun unoccupied-neighbor-tiles (grid tile)
-  (remove-if-not #'(lambda (til) (empty-tile grid til)) (neighbor-tiles tile)))
+(defun kroupvla-unoccupied-neighbor-tiles (grid tile)
+  (remove-if-not #'(lambda (til) (kroupvla-empty-tile grid til)) (kroupvla-neighbor-tiles tile)))
 
-(defun neighbor-tiles (tile)
-  (list (top-of tile) (right-of tile) (bottom-of tile) (left-of tile)))
+(defun kroupvla-neighbor-tiles (tile)
+  (list (kroupvla-top-of tile) (kroupvla-right-of tile) (kroupvla-bottom-of tile) (kroupvla-left-of tile)))
   
-(defun bottom-of (tile)
+(defun kroupvla-bottom-of (tile)
   (cons (1- (car tile)) (cdr tile)))
 
-(defun top-of (tile)
+(defun kroupvla-top-of (tile)
   (cons (1+ (car tile)) (cdr tile)))  
 
-(defun left-of (tile)
+(defun kroupvla-left-of (tile)
   (cons (car tile) (list (1- (cadr tile)))))
 
-(defun right-of (tile)
+(defun kroupvla-right-of (tile)
   (cons (car tile) (list (1+ (cadr tile)))))
 
