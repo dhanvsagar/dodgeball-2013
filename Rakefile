@@ -177,13 +177,17 @@ task :single_player_debug => SP_SCRIPTS do
   end
 end
 
+LAST_OUTPUT_DIR = nil
+
 desc "multi player with all mp ready agents"
 task :multi_player => MP_SCRIPT do
-  Dodgeball::DodgeballRunner.new(MP_SCRIPT, "output_#{Time.now.strftime("%Y_%m_%d_%H_%M_%S")}").run
+  LAST_OUTPUT_DIR =  "output_#{Time.now.strftime('%Y_%m_%d_%H_%M_%S')}"
+  Dodgeball::DodgeballRunner.new(MP_SCRIPT,LAST_OUTPUT_DIR).run
 end
 
 task :multi_player_mp4 => :multi_player do
-  AsciiToVideoUtils.create_animation("output", "images", "result.mp4")
+  FileUtils.rm_rf("images")
+  AsciiToVideoUtils.create_animation(LAST_OUTPUT_DIR, "images", "#{LAST_OUTPUT_DIR}/result.mp4")
 end
 
 def multi_player_script
