@@ -21,7 +21,7 @@ CLEAN.include("*/sp_script.lisp")
 CLEAN.include("*/mp_script.lisp")
 CLEAN.include("images")
 CLEAN.include("*/images")
-CLEAN.include("output")
+CLEAN.include("output*")
 CLEAN.include("*/output")
 CLEAN.include("*/*.gif")
 CLEAN.include("result.mp4")
@@ -67,16 +67,16 @@ SP_READY_AGENTS = [
 MP_READY_AGENTS = [
                    :brazdma1,#late
                    #:cackolen,#nil is not of type number
-                   #:cadekva1,#late #polluting
-                   :chmelond, #crashes sometimes
-                   #:cincuada,#polluting
+                   :cadekva1,#late
+                   #:chmelond, #crashes
+                   :cincuada,
                    #:fifiksta,#clisp only #non symbol used
                    #:fiserale,#probably infilooped #ignore
-                   :hanafran,#crashes
+                   #:hanafran,#crashes
                    :hlusiond,
                    :hrubaeli,
                    :kacurtom,
-                   #:kersnmar,#not working #polluting
+                   #:kersnmar,#nil is not of type number
                    :kokorigo,
                    #:kotrbluk,#nil is not of type number
                    #:kroupvla,#late #crashes
@@ -91,7 +91,7 @@ MP_READY_AGENTS = [
                    #:silhaja6,#polluting, #ignore
                    #:staryvac,#trying to take car of T
                    #:steklmar,#polluting, #ignore
-                   #:stiplsta,#nil is not of type numberi #ignore
+                   #:stiplsta,#nil is not of type number #ignore
                    :strnaj11,
                    :temnymar,
                    :valespe3,
@@ -179,7 +179,7 @@ end
 
 desc "multi player with all mp ready agents"
 task :multi_player => MP_SCRIPT do
-  Dodgeball::DodgeballRunner.new(MP_SCRIPT, "output").run
+  Dodgeball::DodgeballRunner.new(MP_SCRIPT, "output_#{Time.now.strftime("%Y_%m_%d_%H_%M_%S")}").run
 end
 
 task :multi_player_mp4 => :multi_player do

@@ -4,7 +4,7 @@ module AsciiToVideoUtils
   def convert_to_images(from, to) 
     STDOUT.puts "converting text to images from #{from} into #{to}"
     Dir.entries(from).each do |file|
-      if file != "." && file != ".."
+      if file != "." && file != ".." && file != "results"
         name = file.pathmap("%n")
         `convert -size 640x480 xc:white -font Courier -pointsize 18 -fill black -gravity center -draw "text 0,0 '$(cat #{from}/#{file})'" #{to}/#{name}.gif`
       end

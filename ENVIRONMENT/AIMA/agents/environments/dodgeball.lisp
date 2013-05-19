@@ -312,15 +312,24 @@
     (if (and (= 1 (agents-alive (db-world-agents world) world)) (find-student (get-percept-grid world))) t nil)))
 
 (defun test-agent-mode-2 (agent-list)
-  (let* ((world (make-db-world :game-mode competetive-mode :max-steps (* 30 (list-length agent-list)))))
+  (let* ((world (make-db-world :game-mode competetive-mode :max-steps (* 20 (list-length agent-list)))))
     (dolist (agent agent-list)
       (add-agent world agent))
+      (print "TRALALAAAAAA agents count:")
+      (print (length agent-list))
+      (print (length (db-world-agents world)))
     (initialize world)
-    (run-environment world)
+      (print "BUBUBUUUUUUUUUUUUUUU agents count:")
+      (print (length agent-list))
+      (print (length (db-world-agents world)))
+      (run-environment world)
     ;; print a table of results
     (let ((agents (db-world-agents world)))
       (sort agents #'(lambda (ag1 ag2) (> (agent-score ag1) (agent-score ag2))))
-      (print-results agents))))
+      (print-results agents)
+      (print "agents count:")
+      (print (length agent-list))
+      (print (length agents)))))
 
 (defun print-results (agent-list)
   (format t "~&Results:~%")
@@ -686,9 +695,10 @@ Dist >= CAN-HIT-DIST = 0% hit."
     (setf final-array (make-array dims :displaced-to lin-copied-array))))
 
 (defun update-holding (env)
-  "Update the counter that says how many turns some agent is holding the ball or standing on the ball's square. 
-   If a limit of 3 is exceeded, kill the agent.
-   Find agents that stand on the same square as is the ball"
+  "Update the counter that says how many turns some agent is
+  holding the ball or standing on the ball's square. If
+  a limit of 3 is exceeded, kill the agent. Find agents that
+  stand on the same square as is the ball"
   (dolist (agent (db-world-agents env))
     (if (or (agent-has-ball env (agent-body agent)) (ball-at-p env (object-loc (agent-body agent))))
       (agent-at-ball env (agent-body agent)) (agent-not-at-ball env (agent-body agent))))

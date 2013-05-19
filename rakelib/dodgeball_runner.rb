@@ -19,7 +19,9 @@ module Dodgeball
     
     def run_game_script
       reading_board = false
+      reading_results = false
       board = ""
+      results = ""
       counter = 1
       ret_val = 0
 
@@ -34,7 +36,9 @@ module Dodgeball
       end
 
       output.each_line do |line|
-        if line.match(/^[ ]*([0-9]| )+$/)
+        if reading_results
+          results << line
+        elsif line.match(/^[ ]*([0-9]| )+$/)
           board << line
           File.open("#{@output_dir}/%03d.txt" % counter, "w+") { |f| f.write(board) }
           board = ""
@@ -45,9 +49,13 @@ module Dodgeball
         elsif line.match(/^[ ]*[|-]+[ |-]*$/) 
           reading_board = true
           board << line
+        elsif line.match(/^Results.*/)
+          reading_results = true
         end
       end
-puts ret_val
+
+      File.open("#{@output_dir}/results", "w+") { |f| f.write(results) }
+      puts ret_val
       ret_val == 0
     end
   end
