@@ -4,16 +4,16 @@
 ;; This is to be defined when designing a new student agent 
 ;
 
-(defconstant silhaja6-name "SIL")
+(defconstant silhaja6-short-name "SIL")
 (defstructure ( silhaja6    ; replace "my-agent" by your unique name, as e.g. FIT username
                 (:include db-agent 
                   (body (make-silhaja6-body))
                   (program 'my-agent-program)
-                  (name silhaja6-name))) 
+                  (name "silhaja6"))) 
   "Your agent for db-world.")
 
 (defstructure (silhaja6-body 
-                (:include db-agent-body  (name silhaja6-name)  ))
+                (:include db-agent-body (name silhaja6-short-name) (sname silhaja6-short-name)  ))
   ;;(slot1 default1)  ; any specific extra slots your agent's body would need
   ;...
   (slot1 234)
@@ -219,17 +219,17 @@ coord
 
 (defun my_agent-p ((obj percept-object))
   (if (and (not (equal (percept-object-name obj) "#")) 
-           (not (equal (percept-object-name obj) silhaja6-name)) 
+           (not (equal (percept-object-name obj) silhaja6-short-name)) 
            (not (equal (percept-object-name obj) "B")))
       obj nil))
 
 (defun my_my-loc-p ((obj percept-object))
-  (if        (equal (percept-object-name obj) silhaja6-name) 
+  (if        (equal (percept-object-name obj) silhaja6-short-name) 
       obj nil))
 
 ;(defmethod my_empty-p ((obj percept-object))
 ;  (if (and (not (equal (percept-object-name obj) "#")) 
-;           (not (equal (percept-object-name obj) silhaja6-name)) 
+;           (not (equal (percept-object-name obj) silhaja6-short-name)) 
 ;           (not (equal (percept-object-name obj) "B"))
 ;					 (not (equal (percept-object-name obj)  wait-and-throw-db-agent-name  )) )
 ;            

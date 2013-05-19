@@ -2,29 +2,29 @@
 ;;; Author: Ondrej Hlusicka (hlusiond@fit.cvut.cz)
 ;;; Date: 2013
 
-(defconstant hlusiond-name "HO")
+(defconstant hlusiond-short-name "HO")
 
 ;;; Mode 1 Agent
 ;;;;;;;;;;;;;;;;
 (defstructure (hlusiond-1 (:include db-agent
                                              (program 'ho-db-agent-1)
                                              (body (make-hlusiond-body-1))
-                                             (name hlusiond-name)))
+                                             (name hlusiond-short-name)))
               "hlusiond mode 1 agent.")
 
 (defstructure (hlusiond-body-1 (:include db-agent-body 
-                                                  (name hlusiond-name))))
+                                                  (name hlusiond-short-name))))
 
 ;;; Mode 2 Agent
 ;;;;;;;;;;;;;;;;
 (defstructure (hlusiond (:include db-agent
                                              (program 'ho-db-agent-2)
                                              (body (make-hlusiond-body))
-                                             (name hlusiond-name)))
+                                             (name "hlusiond")))
               "hlusiond mode 2 agent.")
 
-(defstructure (hlusiond-body (:include db-agent-body 
-                                                  (name hlusiond-name))))
+(defstructure (hlusiond-body (:include db-agent-body (name hlusiond-short-name) 
+                                                  (sname hlusiond-short-name))))
 
 
 (defun ho-db-agent-1 (percept)
@@ -343,7 +343,7 @@
 (defun ho-enemy? (me other)
        "Is other object my enemy?"
        (if (and (ho-agent? other)
-                (not (equal hlusiond-name (percept-object-name other)))) ; better identification???
+                (not (equal hlusiond-short-name (percept-object-name other)))) ; better identification???
            T
            nil))
 

@@ -13,7 +13,7 @@
   "Your agent for db-world.")
 
 (defstructure (kacurtom-body 
-                (:include db-agent-body (name "ttk")))
+                (:include db-agent-body (name "ttk") (sname "ttk")))
 ;  (slot1 default1)  ; any specific extra slots your agent's body would need
 ;  ...
 ;  (slotn defaultn))

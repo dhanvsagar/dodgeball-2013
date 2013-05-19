@@ -5,7 +5,7 @@
                          (name "brazdma1"))) 
     "Your agent for db-world.")
 
-(defstructure (brazdma1-body (:include db-agent-body (name "^.^")))
+(defstructure (brazdma1-body (:include db-agent-body (name "^.^") (sname "^.^")))
     (history NIL))
 
 (defun brazdma1-A*-pathfinding (grid from to &optional &key (dist 'brazdma1-manhattan-distance) (objective NIL))

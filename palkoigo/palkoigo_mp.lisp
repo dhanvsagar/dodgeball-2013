@@ -7,10 +7,10 @@
                (:include db-agent 
                  (body (make-palkoigo-body))
                  (program 'palkoigo-program)
-                 (name palkoigo-name)))
+                 (name "palkoigo")))
  "Igor Palkoci")
 
-(defstructure (palkoigo-body (:include db-agent-body (name palkoigo-name))))
+(defstructure (palkoigo-body (:include db-agent-body (name palkoigo-name) (sname palkoigo-name))))
 
 (defstruct search-node
       			coord

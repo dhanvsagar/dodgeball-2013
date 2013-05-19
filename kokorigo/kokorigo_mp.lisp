@@ -3,7 +3,7 @@
 
 ;; This is to be defined when designing a new student agent 
 ;
-(defconstant kokorigo-my-name "kokorigo-master")
+(defconstant kokorigo-my-name "kokorigo")
 (defconstant kokorigo-my-short-name "kk")
 
 (defstructure (kokorigo    ; replace "my-agent" by your unique name, as e.g. FIT username
@@ -14,7 +14,7 @@
               "Your agent for db-world.")
 
 (defstructure (kokorigo-my-agent-body 
-                (:include db-agent-body (name kokorigo-my-short-name)))
+                (:include db-agent-body (name kokorigo-my-short-name) (sname kokorigo-my-short-name)))
 
               (kolbezpriblizeni 0)
               (poslednivzdalenost -1)

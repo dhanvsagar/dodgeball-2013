@@ -143,11 +143,13 @@
 	       (:include db-agent 
 			 (program 'wvi-program)
 			 (body (make-wvi-body))
-			 (name wvi-agent-name)))
+			 (name "wancavil")))
     "Your agent for db-world.")
 
 (defstructure (wvi-body 
-	       (:include db-agent-body (name wvi-agent-name)))
+	       (:include db-agent-body 
+                   (name wvi-agent-name)
+                   (sname wvi-agent-name)))
   (last-loc (mk-wpt 0 0))
   (last-grid nil)
   (same-pos-counter 0)

@@ -101,7 +101,7 @@
 
 
 (defun hanafran-get_distance (start_loc end_loc)
-  ( +
+  (+
     (- (max (car start_loc) (car end_loc)) (min (car start_loc) (car end_loc)))
     (- (max (cadr start_loc) (cadr end_loc)) (min (cadr start_loc) (cadr end_loc)))
     )

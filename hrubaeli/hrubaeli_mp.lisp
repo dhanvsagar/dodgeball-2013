@@ -12,7 +12,7 @@
   "Your agent for db-world.")
 
 (defstructure (hrubaeli-body 
-                (:include db-agent-body (name hrubaeli-agent-name)))
+                (:include db-agent-body (name hrubaeli-agent-name) (sname hrubaeli-agent-name)))
   ;(slot1 default1)  ; any specific extra slots your agent's body would need
   ;(slotn defaultn))
     ;

@@ -7,7 +7,7 @@
 (defstructure (temnymar-agent-body
 	(:include db-agent-body
 		(name "TA")
-		(sname "temnymar"))))
+		(sname "TA"))))
 		
 (defun temnymar-agent-program (percept)
 	(let ((grid (temnymar-get-grid percept)) (ball) (myself) (enemies))

@@ -5,12 +5,12 @@
     (:include db-agent 
                   (body (make-cadekva1-body))
                   (program 'cadekva1-program)
-                  (name cadekva1-agent-name)
+                  (name "cadekva1")
       )
     )
   )
  
-(defstructure (cadekva1-body (:include db-agent-body (name cadekva1-agent-name))))
+(defstructure (cadekva1-body (:include db-agent-body (name cadekva1-agent-name) (sname cadekva1-agent-name))))
  
 (defun cadekva1-program (percept)
     (let* ((me (first percept))
@@ -18,11 +18,11 @@
           (my-loc (object-loc me))
           (ball-on-my-loc (member-if (lambda (a) (typep a 'percept-object-ball)) (apply #'aref grid (object-loc me))))
           (holding-ball (object-contents me))
-          (agent-loc (closest-agent my-loc grid))
-          (ball-loc (find-ball-or-agent-with-ball grid))          
-          (agent-next-to-me (standing-next-to-agent my-loc agent-loc))
-          (agent-neighbor-loc (closest-location-around-agent my-loc agent-loc grid))
-          (shortest-path (bfs my-loc ball-loc grid))
+          (agent-loc (cadekva1-closest-agent my-loc grid))
+          (ball-loc (cadekva1-find-ball-or-agent-with-ball grid))          
+          (agent-next-to-me (cadekva1-standing-next-to-agent my-loc agent-loc))
+          (agent-neighbor-loc (cadekva1-closest-location-around-agent my-loc agent-loc grid))
+          (shortest-path (cadekva-bfs my-loc ball-loc grid))
           (next-step (first shortest-path)))
  
      (cond 
@@ -39,13 +39,13 @@
      (holding-ball `(throw-ball ,@agent-neighbor-loc))
     
      ;; not holding ball -> go for it
-     ((not holding-ball) (go-on-position my-loc next-step)))))
+     ((not holding-ball) (cadekva1-go-on-position my-loc next-step)))))
  
-(defun standing-next-to-agent (my-loc agent-loc)
+(defun cadekva1-standing-next-to-agent (my-loc agent-loc)
   "Whether the agent is next to me."
-  (if (= (manhattan-distance my-loc agent-loc) 1) t nil ))
+  (if (= (cadekva1-manhattan-distance my-loc agent-loc) 1) t nil ))
  
-(defun manhattan-distance (a b)
+(defun cadekva1-manhattan-distance (a b)
   "Get Manhattan distance between two points."
   (let ((ax (first a))
         (ay (second a))
@@ -55,53 +55,53 @@
   (+ (abs (- ax bx)) (abs (- ay by)))
 ))
 
-(defun closest-agent(my-loc grid) 
+(defun cadekva1-closest-agent(my-loc grid) 
   "Finds location of the closest agent."
-  (let* ((agents (find-agents grid))
+  (let* ((agents (cadekva1-find-agents grid))
          (closest (first agents)))
 
     (dolist
       (loc (rest agents))
-      (when (< (manhattan-distance my-loc loc) (manhattan-distance my-loc closest)) 
+      (when (< (cadekva1-manhattan-distance my-loc loc) (cadekva1-manhattan-distance my-loc closest)) 
         (setf closest loc))) closest ))
 
-(defun find-agents (grid)
+(defun cadekva1-find-agents (grid)
   "Finds location of all agents."
   (let ((agent) (agents))
     (dotimes (i (first (array-dimensions grid)))
       (dotimes (j (second (array-dimensions grid)))
-        (when (setf agent (identify-in-list #'agent-predicate (aref grid i j)))
+        (when (setf agent (identify-in-list #'cadekva1-agent-predicate (aref grid i j)))
           (push (list i j) agents)))) agents ))
  
-(defun closest-location-around-agent (my-loc agent-loc grid)
+(defun cadekva1-closest-location-around-agent (my-loc agent-loc grid)
   "Determine closest location so agent can't catch the ball when throwing it behind him." 
-(let* ((neighbors (get-4-neighborhood agent-loc grid))
-       (empty-neighbors (remove-if-not #'(lambda (x) (is-position-free x grid)) neighbors)))
+(let* ((neighbors (cadekva1-get-4-neighborhood agent-loc grid))
+       (empty-neighbors (remove-if-not #'(lambda (x) (cadekva1-is-position-free x grid)) neighbors)))
 
   (setf closest (first empty-neighbors))
   (dolist 
     (loc (rest empty-neighbors))
-    (when (< (manhattan-distance my-loc loc) (manhattan-distance my-loc closest)) 
+    (when (< (cadekva1-manhattan-distance my-loc loc) (cadekva1-manhattan-distance my-loc closest)) 
      (setf closest loc)
     )
   )
   closest
 ))
  
-(defun is-ball-on-location (loc grid)
+(defun cadekva1-is-ball-on-location (loc grid)
   "Whether a ball is on the location."
 (let* ((x (first loc))
       (y (second loc))
       (cell (aref grid x y))
       (percepted-object (identify-in-list #'my-ball-p cell)))
-  (when (equal nil percepted-object) (return-from is-ball-on-location nil))
+  (when (equal nil percepted-object) (return-from cadekva1-is-ball-on-location nil))
   (if (equal (percept-object-name percepted-object) "B") t nil)))
  
-(defun find-ball-or-agent-with-ball (grid)
+(defun cadekva1-find-ball-or-agent-with-ball (grid)
   "This implicitly include the situation of bumping the agent with ball."
-  (find-X-location #'ball-or-agent-with-ball-predicate grid))
+  (find-X-location #'cadekva1-ball-or-agent-with-ball-predicate grid))
  
-(defun get-4-neighborhood (position grid)
+(defun cadekva1-get-4-neighborhood (position grid)
  "Return 4-neighborhood of a position."
  (let*  ((x (first position))
         (y (second position)) 
@@ -112,16 +112,16 @@
  
 (list north east south west)))
  
-(defun expand-neighbors(position grid map) 
+(defun cadekva1-expand-neighbors(position grid map) 
   "Expand empty un-visited neighbor cells."
-  (let* ((4-connected-neighbors (get-4-neighborhood position grid))
-         (free-positions (remove-if-not #'(lambda (x) (is-position-free x grid)) 4-connected-neighbors))
-         (free-unvisited-positions (remove-if-not #'(lambda (x) (is-unvisited x map)) free-positions)))
+  (let* ((4-connected-neighbors (cadekva1-get-4-neighborhood position grid))
+         (free-positions (remove-if-not #'(lambda (x) (cadekva1-is-position-free x grid)) 4-connected-neighbors))
+         (free-unvisited-positions (remove-if-not #'(lambda (x) (cadekva1-is-unvisited x map)) free-positions)))
  
     free-unvisited-positions
 ))
  
-(defun go-on-position (my-loc target-loc)
+(defun cadekva1-go-on-position (my-loc target-loc)
  "Generate proper action to go towards target position."
  (let* ((x (first my-loc))
         (y (second my-loc))
@@ -133,19 +133,19 @@
  ((> y target-y) 'go-down)
  ((< y target-y) 'go-up))))
  
-(defun is-position-free(position grid)
+(defun cadekva1-is-position-free(position grid)
  "Whether position is free."
 (let* ((x (first position))
       (y (second position))
       (cell (aref grid x y)))
   
-  (if (or (equal cell nil) (is-ball-on-location position grid)) t nil)))
+  (if (or (equal cell nil) (cadekva1-is-ball-on-location position grid)) t nil)))
  
-(defun find-agent-location (grid)
+(defun cadekva1-find-agent-location (grid)
   "Return location of first agent found."
-  (find-X-location #'agent-predicate grid))
+  (find-X-location #'cadekva1-agent-predicate grid))
  
-(defun bfs (start target grid)
+(defun cadekva-bfs (start target grid)
   "Find a shortest-path using simple BFS search."
     (let ((map-of-visited (make-array (array-dimensions grid) :initial-element nil))
          (queue nil)
@@ -158,7 +158,7 @@
         ; while queue is not empty or target is found
         (loop                     
          (setf current (pop queue))                 
-         (setf neighborhood (expand-neighbors current grid map-of-visited))
+         (setf neighborhood (cadekva1-expand-neighbors current grid map-of-visited))
          
          ; expand neighbors and set their parent
          (dolist 
@@ -184,7 +184,7 @@
         shortest-path
 ))
  
-(defun is-unvisited (location map)
+(defun cadekva1-is-unvisited (location map)
   "Finds out whether a location is visited."
   (let* ((x (first location))
          (y (second location))
@@ -193,14 +193,14 @@
     
     (if (and (equal cell nil) (not is-start)) t nil)))
  
-(defmethod agent-predicate ((obj percept-object))
+(defmethod cadekva1-agent-predicate ((obj percept-object))
   "Predicate that identifies agent."
   (if (and (not (equal (percept-object-name obj) "#")) 
            (not (equal (percept-object-name obj) cadekva1-agent-name)) 
            (not (equal (percept-object-name obj) "B")))
       obj nil))
  
-(defmethod ball-or-agent-with-ball-predicate ((obj percept-object))
+(defmethod cadekva1-ball-or-agent-with-ball-predicate ((obj percept-object))
   "Predicate that identifies ball or agent with ball."
   (cond ((equal (percept-object-name obj) "B") obj)
         ((equal (percept-object-name obj) "BWT") obj)

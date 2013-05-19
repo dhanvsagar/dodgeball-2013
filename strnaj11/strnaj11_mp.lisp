@@ -10,12 +10,12 @@
                 (:include db-agent 
                   (body (make-hanny-agent-body))
                   (program 'hanny-agent-program)
-                  (name hanny-agent-name)))
+                  (name "strnaj11")))
   "Jan Strnad")
 ;
 (defstructure (hanny-agent-body 
                 (:include db-agent-body
-                (name hanny-agent-name)))
+                (name hanny-agent-name) (sname hanny-agent-name)))
   ; expected path
   (expected-path)
   ; last ball location

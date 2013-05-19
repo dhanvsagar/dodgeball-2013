@@ -4,13 +4,13 @@
 
 (defconstant valespe-db-agent-name "PV")
 
-(defstructure (valespe-db-agent-body (:include db-agent-body (name valespe-db-agent-name))))
+(defstructure (valespe-db-agent-body (:include db-agent-body (sname valespe-db-agent-name) (name valespe-db-agent-name))))
 
 (defstructure (valespe3                
                (:include db-agent 
                          (program 'valespe) 
                          (body (make-valespe-db-agent-body))
-                         (name valespe-db-agent-name))))
+                         (name "valespe"))))
 
 (defun valespe (percept)
   (let* ((me (car percept))

@@ -1,8 +1,17 @@
 (defconstant vanikjak-agent-name "JV")
 
-(defstructure (vanikjak-agent-body (:include db-agent-body (name vanikjak-agent-name) (sname vanikjak-agent-name))))
+(defstructure (vanikjak-agent-body (:include db-agent-body
+                                             (name
+                                               vanikjak-agent-name)
+                                             (sname
+                                               vanikjak-agent-name))))
 
-(defstructure (vanikjak (:include db-agent (program 'vanikjak-program) (body (make-vanikjak-agent-body)) (name vanikjak-agent-name))))
+(defstructure (vanikjak (:include db-agent (program
+                                             'vanikjak-program)
+                                  (body
+                                    (make-vanikjak-agent-body))
+                                  (name
+                                    "vanikjak"))))
 
 (defun vanikjak-program (percept)
 	(let*

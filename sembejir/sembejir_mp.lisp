@@ -63,7 +63,7 @@
     (:include db-agent
       (body (make-sembejir-agent-body))
       (program 'sembejir-prgm)
-      (name sembejir-agent-name)
+      (name "sembejir")
     )
   )
   "The sembejir agent" 
