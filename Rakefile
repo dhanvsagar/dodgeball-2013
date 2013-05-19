@@ -46,6 +46,7 @@ SP_READY_AGENTS = [
                    :kokorigo,
                    :kotrbluk,
                    :kroupvla,#late
+                   :loblpave, #late
                    :ludacrad,
                    :macalkar,
                    :milikjan,
@@ -81,6 +82,7 @@ MP_READY_AGENTS = [
                    #:kotrbluk,#nil is not of type number
                    #:kroupvla,#late #crashes
                    #:ludacrad,#crashes
+                   #:loblpave, #late
                    :macalkar,
                    #:milikjan,#nil is not of type number
                    #:musilon4,#clisp only #ignore
