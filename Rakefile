@@ -56,6 +56,7 @@ SP_READY_AGENTS = [
                    :perutond,
                    :sembejir,
                    :silhaja6,
+                   :simonja3, #late
                    :staryvac,
                    :steklmar,
                    :stiplsta,
