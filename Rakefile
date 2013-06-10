@@ -39,6 +39,7 @@ SP_READY_AGENTS = [
                    :fifiksta,#clisp only
                    :fiserale,#sometimes fails
                    :hanafran,
+                   :hegerto1,#late
                    :hlusiond,
                    :hrubaeli,
                    :kacurtom,
@@ -46,7 +47,8 @@ SP_READY_AGENTS = [
                    :kokorigo,
                    :kotrbluk,
                    :kroupvla,#late
-                   :loblpave, #late
+                   :kajtmlud,#late
+                   :loblpave,#late
                    :ludacrad,
                    :macalkar,
                    :milikjan,
@@ -56,10 +58,11 @@ SP_READY_AGENTS = [
                    :perutond,
                    :sembejir,
                    :silhaja6,
-                   :simonja3, #late
+                   :simonja3,#late
                    :staryvac,
                    :steklmar,
                    :stiplsta,
+                   :streikri,#late
                    :strnaj11,
                    :temnymar,
                    :valespe3,
